@@ -59,30 +59,8 @@ class PresignResponse(BaseModel):
     uploads: list[PresignedUpload]
 
 
-class StartTrainingRequest(BaseModel):
-    purchase_id: int
-    photo_keys: list[str]
-
-
-class TrainingOut(BaseModel):
-    id: int
-    status: str
-    provod_model_id: str | None
-
-
 class StyleOut(BaseModel):
     key: str
     title: str
     preview_url: str
     tier: int
-
-
-class StartGenerationRequest(BaseModel):
-    training_id: int
-    style_key: str
-
-
-class GenerationOut(BaseModel):
-    id: int
-    status: str
-    result_urls: list[str] = []

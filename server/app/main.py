@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
 from app.db import Base, engine
-from app.routers import auth, packages, billing, uploads, training, styles, generation, thumbs
+from app.routers import auth, packages, billing, uploads, styles, generation, thumbs
 
 Base.metadata.create_all(bind=engine)
 
@@ -21,7 +21,6 @@ app.include_router(auth.router,       prefix="/api/v1/auth",       tags=["auth"]
 app.include_router(packages.router,   prefix="/api/v1/packages",   tags=["packages"])
 app.include_router(billing.router,    prefix="/api/v1/billing",    tags=["billing"])
 app.include_router(uploads.router,    prefix="/api/v1/uploads",    tags=["uploads"])
-app.include_router(training.router,   prefix="/api/v1/training",   tags=["training"])
 app.include_router(styles.router,     prefix="/api/v1/styles",     tags=["styles"])
 app.include_router(generation.router, prefix="/api/v1/generation", tags=["generation"])
 app.include_router(thumbs.router,     prefix="/api/v1/thumbs",     tags=["thumbs"])

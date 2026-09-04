@@ -78,3 +78,26 @@ grep -n "real verify not wired" /root/backend/app/services/google_play.py
   по второму и третьему кругу. Не ошибка, цикл сбрасывается сам.
 - **Что делать с Android.** Правки 1 и 2 применимы и к боевому инстансу, но
   это отдельное решение.
+
+
+## Уборка после сведения
+
+Из скопированного сервера удалено всё, что осталось от прошлого поколения,
+когда генерация шла через provod.ai. Сейчас всё работает на DashScope
+(Alibaba), и ни один из удалённых кусков кодом не вызывался:
+
+- `services/provod.py` — клиент к provod.ai;
+- `routers/training.py` — маршруты `/api/v1/training`, помеченные «пока
+  заглушка». Android-клиент их не знает: `ProShotApi.kt` ходит только в auth,
+  packages, billing, styles и generation;
+- модели `TrainingJob` и `GenerationJob` вместе со статусами — они
+  существовали только ради этих маршрутов. Учёт генераций ведёт
+  `GenerationEvent`, он остался;
+- схемы `StartTrainingRequest`, `TrainingOut`, `StartGenerationRequest`,
+  `GenerationOut`;
+- пять настроек `provod_*` в `config.py`.
+
+`routers/uploads.py` и `services/storage.py` оставлены: они про S3, а не про
+provod, хотя клиент их тоже пока не вызывает.
+
+Прогон покупок после уборки проходит целиком.

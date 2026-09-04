@@ -17,13 +17,6 @@ class Settings(BaseSettings):
     s3_access_key: str = ""
     s3_secret_key: str = ""
 
-    # provod.ai
-    provod_api_url: str = "https://api.provod.ai/v1"
-    provod_api_key: str = ""
-    provod_model: str = "openai/gpt-image-2"
-    provod_size: str = "1024x1024"
-    provod_quality: str = "low"
-
     # DashScope (Alibaba Cloud Model Studio)
     dashscope_api_key: str = ""
     dashscope_base_url: str = "https://dashscope-intl.aliyuncs.com/api/v1"
