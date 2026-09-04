@@ -126,6 +126,30 @@ def my_purchases(
     return [_out(p, pkg.sku) for p, pkg in rows]
 
 
+def apply_refund(db: Session, transaction_id: str) -> Purchase | None:
+    """Возврат денег: покупка закрывается, остаток фото обнуляется.
+
+    Деньги вернули — генерации по этой покупке прекращаются немедленно.
+    Обнуление и статус делают это двумя независимыми способами: _active_purchase
+    в generation.py отбирает покупки по status == "paid" И photos_remaining > 0,
+    так что достаточно любого из них, но полагаться на один не хочется.
+    """
+    purchase = db.query(Purchase).filter(
+        Purchase.provider == "app_store",
+        Purchase.provider_token == transaction_id,
+    ).first()
+    if purchase is None:
+        log.warning("Возврат по неизвестной транзакции %s", transaction_id)
+        return None
+
+    was = purchase.photos_remaining
+    purchase.status = "refunded"
+    purchase.photos_remaining = 0
+    db.commit()
+    log.warning("Возврат по покупке %s: остаток %s фото обнулён", purchase.id, was)
+    return purchase
+
+
 @router.post("/apple/notifications")
 async def apple_notifications(request: Request, db: Session = Depends(get_db)):
     """App Store Server Notifications V2.
@@ -161,16 +185,6 @@ async def apple_notifications(request: Request, db: Session = Depends(get_db)):
     log.info("Уведомление Apple: %s tx=%s", kind, transaction_id)
 
     if kind == "REFUND" and transaction_id:
-        purchase = db.query(Purchase).filter(
-            Purchase.provider == "app_store",
-            Purchase.provider_token == transaction_id,
-        ).first()
-        if purchase:
-            # Помечаем возврат. Остаток фото НЕ обнуляем: что делать с уже
-            # начисленными снимками — продуктовое решение, а не техническое.
-            purchase.status = "refunded"
-            db.commit()
-            log.warning("Возврат по покупке %s, остаток фото %s не тронут",
-                        purchase.id, purchase.photos_remaining)
+        apply_refund(db, transaction_id)
 
     return {"ok": True}

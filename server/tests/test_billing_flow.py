@@ -65,6 +65,33 @@ check("неизвестный провайдер — отказ",
 check("уведомление с неверной подписью — отказ",
       c.post("/api/v1/billing/apple/notifications", json={"signedPayload": "FAKE"}).status_code == 400)
 
+# ── Возврат денег ──
+from app.db import SessionLocal  # noqa: E402
+from app.models import Purchase  # noqa: E402
+from app.routers.billing import apply_refund  # noqa: E402
+
+db = SessionLocal()
+tx = db.query(Purchase).filter(Purchase.id == r1.json()["id"]).first().provider_token
+refunded = apply_refund(db, tx)
+check("возврат обнуляет остаток фото",
+      refunded is not None and refunded.photos_remaining == 0 and refunded.status == "refunded")
+
+# Генерация после возврата не должна находить активную покупку.
+from app.routers.generation import _active_purchase  # noqa: E402
+from fastapi import HTTPException  # noqa: E402
+from app.models import User  # noqa: E402
+
+user = db.query(User).filter(User.device_id == "TEST-DEVICE-1").first()
+try:
+    _active_purchase(db, user)
+    stopped = False
+except HTTPException as e:
+    stopped = e.status_code == 402
+check("после возврата генерация останавливается", stopped)
+
+check("возврат по неизвестной транзакции не падает", apply_refund(db, "НЕТ-ТАКОЙ") is None)
+db.close()
+
 del os.environ["ALLOW_UNVERIFIED_PURCHASES"]
 from app.config import Settings  # noqa: E402
 from app.services import app_store  # noqa: E402
