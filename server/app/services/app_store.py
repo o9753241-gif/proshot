@@ -209,3 +209,38 @@ def transaction_info(transaction_id: str):
         except Exception:  # noqa: BLE001
             continue
     return None
+
+def send_consumption(transaction_id: str, consumption_request) -> bool:
+    """Отправляет данные о потреблении в App Store Server API.
+
+    Apple ждёт ответ в течение 12 часов после CONSUMPTION_REQUEST. Если не
+    ответить, решение по возврату принимается без наших данных.
+
+    Среда определяется перебором: уведомление могло прийти из песочницы.
+    """
+    from appstoreserverlibrary.api_client import AppStoreServerAPIClient
+
+    if not settings.apple_private_key_path or not os.path.exists(settings.apple_private_key_path):
+        log.warning("Данные о потреблении не отправлены: нет ключа App Store Server API")
+        return False
+
+    with open(settings.apple_private_key_path, "rb") as f:
+        signing_key = f.read()
+
+    for env in _environments():
+        try:
+            client = AppStoreServerAPIClient(
+                signing_key,
+                settings.apple_key_id,
+                settings.apple_issuer_id,
+                settings.apple_bundle_id,
+                env,
+            )
+            client.send_consumption_data(transaction_id, consumption_request)
+            log.info("Данные о потреблении отправлены для %s (%s)", transaction_id, env)
+            return True
+        except Exception as e:  # noqa: BLE001
+            last = e
+            continue
+    log.warning("Данные о потреблении не отправлены для %s: %s", transaction_id, type(last).__name__)
+    return False

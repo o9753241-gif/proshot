@@ -90,6 +90,60 @@ except HTTPException as e:
 check("после возврата генерация останавливается", stopped)
 
 check("возврат по неизвестной транзакции не падает", apply_refund(db, "НЕТ-ТАКОЙ") is None)
+
+# ── Apple отказала в возврате ──
+from app.routers.billing import apply_refund_reversed, build_consumption, _photos_used  # noqa: E402
+from app.models import GenerationEvent  # noqa: E402
+
+back = apply_refund_reversed(db, tx)
+check("отмена возврата восстанавливает остаток",
+      back is not None and back.status == "paid" and back.photos_remaining == 20)
+
+# Три снимка уже получены — остаток после отмены возврата должен это учесть.
+for i in range(3):
+    db.add(GenerationEvent(user_id=user.id, purchase_id=back.id, scene_key="business_light"))
+db.commit()
+apply_refund(db, tx)
+back2 = apply_refund_reversed(db, tx)
+check("восстановлен остаток за вычетом израсходованного",
+      back2.photos_remaining == 17, f"(получено {back2.photos_remaining})")
+
+# ── Ответ на CONSUMPTION_REQUEST ──
+from app.config import Settings as S  # noqa: E402
+import app.routers.billing as B  # noqa: E402
+
+B.settings = S(apple_consumption_consented=False)
+cr = build_consumption(db, tx)
+check("без согласия отправляем только customerConsented=false",
+      cr is not None and cr.customerConsented is False and cr.consumptionStatus is None)
+
+B.settings = S(apple_consumption_consented=True)
+cr = build_consumption(db, tx)
+from appstoreserverlibrary.models.ConsumptionStatus import ConsumptionStatus  # noqa: E402
+from appstoreserverlibrary.models.DeliveryStatus import DeliveryStatus  # noqa: E402
+from appstoreserverlibrary.models.RefundPreference import RefundPreference  # noqa: E402
+check("частичный расход виден как PARTIALLY_CONSUMED",
+      cr.consumptionStatus == ConsumptionStatus.PARTIALLY_CONSUMED)
+check("доставка отмечена как успешная",
+      cr.deliveryStatus == DeliveryStatus.DELIVERED_AND_WORKING_PROPERLY)
+check("при частичном расходе позиции по возврату нет",
+      cr.refundPreference == RefundPreference.NO_PREFERENCE)
+check("appAccountToken — это device_id", cr.appAccountToken == user.device_id)
+
+# Дорасходуем пакет до конца и проверим позицию по возврату.
+for i in range(17):
+    db.add(GenerationEvent(user_id=user.id, purchase_id=back2.id, scene_key="business_light"))
+db.commit()
+cr = build_consumption(db, tx)
+check("израсходованный пакет — FULLY_CONSUMED",
+      cr.consumptionStatus == ConsumptionStatus.FULLY_CONSUMED)
+check("по израсходованному пакету возражаем против возврата",
+      cr.refundPreference == RefundPreference.PREFER_DECLINE)
+
+check("CONSUMPTION_REQUEST по неизвестной транзакции — None",
+      build_consumption(db, "НЕТ-ТАКОЙ") is None)
+
+B.settings = S()
 db.close()
 
 del os.environ["ALLOW_UNVERIFIED_PURCHASES"]

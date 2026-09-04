@@ -53,6 +53,13 @@ class Settings(BaseSettings):
     # Онлайн-проверка отзыва сертификатов при разборе подписи. Дороже и требует
     # сети на каждую покупку, поэтому по умолчанию выключена.
     apple_online_checks: bool = False
+    # Согласие пользователя на передачу данных о потреблении в Apple.
+    # Включать только когда в приложении появится экран, где человек это согласие
+    # даёт: Apple использует данные лишь при customerConsented = true.
+    apple_consumption_consented: bool = False
+    # Наша позиция по возврату, когда пакет израсходован полностью.
+    # PREFER_DECLINE | NO_PREFERENCE | PREFER_GRANT — решение продуктовое.
+    apple_refund_preference_when_consumed: str = "PREFER_DECLINE"
 
 
 settings = Settings()

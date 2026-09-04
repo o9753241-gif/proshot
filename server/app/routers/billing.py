@@ -7,6 +7,7 @@
 """
 
 import logging
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.exc import IntegrityError
@@ -14,9 +15,11 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.models import Package, Purchase, User
+from app.models import GenerationEvent, Package, Purchase, User
 from app.schemas import PurchaseOut, VerifyPurchaseRequest
+from app.config import settings
 from app.services import app_store, google_play
+from app.services.i18n import REGIONAL_PRICES
 
 router = APIRouter()
 log = logging.getLogger(__name__)
@@ -150,6 +153,145 @@ def apply_refund(db: Session, transaction_id: str) -> Purchase | None:
     return purchase
 
 
+def _photos_used(db: Session, purchase: Purchase) -> int:
+    """Сколько снимков из пакета человек успел получить.
+
+    Считается по событиям генерации, а не по остатку: остаток обнуляется при
+    возврате, а события остаются. Благодаря этому остаток восстановим точно.
+    """
+    return db.query(GenerationEvent).filter(GenerationEvent.purchase_id == purchase.id).count()
+
+
+def apply_refund_reversed(db: Session, transaction_id: str) -> Purchase | None:
+    """Apple отменила возврат — покупка снова действует.
+
+    Остаток восстанавливается как «куплено минус израсходовано», а не из
+    сохранённого числа: событий генерации возврат не касается, так что это
+    точная величина, а не догадка.
+    """
+    purchase = db.query(Purchase).filter(
+        Purchase.provider == "app_store",
+        Purchase.provider_token == transaction_id,
+    ).first()
+    if purchase is None:
+        log.warning("Отмена возврата по неизвестной транзакции %s", transaction_id)
+        return None
+
+    pkg = db.query(Package).filter(Package.id == purchase.package_id).first()
+    if pkg is None:
+        return None
+
+    purchase.status = "paid"
+    purchase.photos_remaining = max(pkg.total_photos - _photos_used(db, purchase), 0)
+    db.commit()
+    log.warning("Возврат отменён по покупке %s: остаток восстановлен до %s",
+                purchase.id, purchase.photos_remaining)
+    return purchase
+
+
+def _account_tenure(created_at: datetime):
+    """Возраст учётной записи в терминах Apple."""
+    from appstoreserverlibrary.models.AccountTenure import AccountTenure
+
+    days = (datetime.utcnow() - created_at).days
+    if days < 3:    return AccountTenure.ZERO_TO_THREE_DAYS
+    if days < 10:   return AccountTenure.THREE_DAYS_TO_TEN_DAYS
+    if days < 30:   return AccountTenure.TEN_DAYS_TO_THIRTY_DAYS
+    if days < 90:   return AccountTenure.THIRTY_DAYS_TO_NINETY_DAYS
+    if days < 180:  return AccountTenure.NINETY_DAYS_TO_ONE_HUNDRED_EIGHTY_DAYS
+    if days < 365:  return AccountTenure.ONE_HUNDRED_EIGHTY_DAYS_TO_THREE_HUNDRED_SIXTY_FIVE_DAYS
+    return AccountTenure.GREATER_THAN_THREE_HUNDRED_SIXTY_FIVE_DAYS
+
+
+def _lifetime_purchased(db: Session, user: User):
+    """Сумма покупок человека в долларах, разложенная по корзинам Apple."""
+    from appstoreserverlibrary.models.LifetimeDollarsPurchased import LifetimeDollarsPurchased
+
+    total = 0.0
+    rows = (
+        db.query(Purchase, Package)
+        .join(Package, Package.id == Purchase.package_id)
+        .filter(Purchase.user_id == user.id, Purchase.status.in_(("paid", "refunded")))
+        .all()
+    )
+    for _p, pkg in rows:
+        usd = REGIONAL_PRICES.get(pkg.sku, {}).get("USD")
+        if usd:
+            total += float(usd[1].lstrip("$"))
+
+    if total <= 0:      return LifetimeDollarsPurchased.ZERO_DOLLARS
+    if total < 50:      return LifetimeDollarsPurchased.ONE_CENT_TO_FORTY_NINE_DOLLARS_AND_NINETY_NINE_CENTS
+    if total < 100:     return LifetimeDollarsPurchased.FIFTY_DOLLARS_TO_NINETY_NINE_DOLLARS_AND_NINETY_NINE_CENTS
+    if total < 500:     return LifetimeDollarsPurchased.ONE_HUNDRED_DOLLARS_TO_FOUR_HUNDRED_NINETY_NINE_DOLLARS_AND_NINETY_NINE_CENTS
+    if total < 1000:    return LifetimeDollarsPurchased.FIVE_HUNDRED_DOLLARS_TO_NINE_HUNDRED_NINETY_NINE_DOLLARS_AND_NINETY_NINE_CENTS
+    if total < 2000:    return LifetimeDollarsPurchased.ONE_THOUSAND_DOLLARS_TO_ONE_THOUSAND_NINE_HUNDRED_NINETY_NINE_DOLLARS_AND_NINETY_NINE_CENTS
+    return LifetimeDollarsPurchased.TWO_THOUSAND_DOLLARS_OR_GREATER
+
+
+def build_consumption(db: Session, transaction_id: str):
+    """Собирает ответ на CONSUMPTION_REQUEST из того, что мы действительно знаем.
+
+    Ничего не выдумываем: чего не знаем — UNDECLARED. Apple сверяет присланное
+    с собственными данными, и приукрашивание работает против нас.
+    """
+    from appstoreserverlibrary.models.ConsumptionRequest import ConsumptionRequest
+    from appstoreserverlibrary.models.ConsumptionStatus import ConsumptionStatus
+    from appstoreserverlibrary.models.DeliveryStatus import DeliveryStatus
+    from appstoreserverlibrary.models.Platform import Platform
+    from appstoreserverlibrary.models.PlayTime import PlayTime
+    from appstoreserverlibrary.models.RefundPreference import RefundPreference
+    from appstoreserverlibrary.models.UserStatus import UserStatus
+    from appstoreserverlibrary.models.LifetimeDollarsRefunded import LifetimeDollarsRefunded
+
+    purchase = db.query(Purchase).filter(
+        Purchase.provider == "app_store",
+        Purchase.provider_token == transaction_id,
+    ).first()
+    if purchase is None:
+        return None
+
+    pkg = db.query(Package).filter(Package.id == purchase.package_id).first()
+    user = db.query(User).filter(User.id == purchase.user_id).first()
+    if pkg is None or user is None:
+        return None
+
+    used = _photos_used(db, purchase)
+    if used == 0:
+        status = ConsumptionStatus.NOT_CONSUMED
+        preference = RefundPreference.NO_PREFERENCE
+    elif used >= pkg.total_photos:
+        status = ConsumptionStatus.FULLY_CONSUMED
+        preference = getattr(RefundPreference,
+                             settings.apple_refund_preference_when_consumed,
+                             RefundPreference.NO_PREFERENCE)
+    else:
+        status = ConsumptionStatus.PARTIALLY_CONSUMED
+        preference = RefundPreference.NO_PREFERENCE
+
+    consented = settings.apple_consumption_consented
+    if not consented:
+        # Без согласия человека Apple данные не использует, и отправлять их
+        # незачем. Отвечаем честно: согласия нет.
+        return ConsumptionRequest(customerConsented=False)
+
+    return ConsumptionRequest(
+        customerConsented=True,
+        consumptionStatus=status,
+        platform=Platform.APPLE,
+        # Бесплатных генераций в ProShot нет: пакеты только платные.
+        sampleContentProvided=False,
+        deliveryStatus=DeliveryStatus.DELIVERED_AND_WORKING_PROPERLY,
+        appAccountToken=user.device_id,
+        accountTenure=_account_tenure(user.created_at),
+        # Время в приложении мы не измеряем — не выдумываем.
+        playTime=PlayTime.UNDECLARED,
+        lifetimeDollarsRefunded=LifetimeDollarsRefunded.UNDECLARED,
+        lifetimeDollarsPurchased=_lifetime_purchased(db, user),
+        userStatus=UserStatus.ACTIVE,
+        refundPreference=preference,
+    )
+
+
 @router.post("/apple/notifications")
 async def apple_notifications(request: Request, db: Session = Depends(get_db)):
     """App Store Server Notifications V2.
@@ -184,7 +326,18 @@ async def apple_notifications(request: Request, db: Session = Depends(get_db)):
 
     log.info("Уведомление Apple: %s tx=%s", kind, transaction_id)
 
-    if kind == "REFUND" and transaction_id:
-        apply_refund(db, transaction_id)
+    if transaction_id:
+        if kind == "REFUND":
+            apply_refund(db, transaction_id)
+        elif kind == "REFUND_REVERSED":
+            # Apple отказала в возврате — покупка снова действует.
+            apply_refund_reversed(db, transaction_id)
+        elif kind == "CONSUMPTION_REQUEST":
+            # Ответ ждут в течение 12 часов, иначе решение примут без наших данных.
+            payload_out = build_consumption(db, transaction_id)
+            if payload_out is not None:
+                app_store.send_consumption(transaction_id, payload_out)
+            else:
+                log.warning("CONSUMPTION_REQUEST по неизвестной транзакции %s", transaction_id)
 
     return {"ok": True}
