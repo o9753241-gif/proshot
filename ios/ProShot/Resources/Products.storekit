@@ -1,0 +1,45 @@
+{
+  "identifier" : "proshot-local",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "pack_basic",
+      "localizations" : [
+        { "description" : "20 портретов, до 3 сцен", "displayName" : "Базовый", "locale" : "ru_RU" },
+        { "description" : "20 portraits, up to 3 scenes", "displayName" : "Basic", "locale" : "en_US" }
+      ],
+      "productID" : "pack_basic",
+      "referenceName" : "Базовый",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "pack_standard",
+      "localizations" : [
+        { "description" : "50 портретов, до 5 сцен", "displayName" : "Стандарт", "locale" : "ru_RU" },
+        { "description" : "50 portraits, up to 5 scenes", "displayName" : "Standard", "locale" : "en_US" }
+      ],
+      "productID" : "pack_standard",
+      "referenceName" : "Стандарт",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "29.99",
+      "familyShareable" : false,
+      "internalID" : "pack_premium",
+      "localizations" : [
+        { "description" : "120 портретов, до 8 сцен", "displayName" : "Премиум", "locale" : "ru_RU" },
+        { "description" : "120 portraits, up to 8 scenes", "displayName" : "Premium", "locale" : "en_US" }
+      ],
+      "productID" : "pack_premium",
+      "referenceName" : "Премиум",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : { "_askToBuyEnabled" : false },
+  "subscriptionGroups" : [],
+  "version" : { "major" : 3, "minor" : 0 }
+}

@@ -1,0 +1,45 @@
+# Описание проекта для XcodeGen. Файл .xcodeproj не хранится в репозитории:
+# он генерируется одной командой и не порождает конфликтов слияния.
+#
+# На Mac:
+#     brew install xcodegen
+#     cd ios && xcodegen generate && open ProShot.xcodeproj
+name: ProShot
+options:
+  bundleIdPrefix: ai.proshot
+  deploymentTarget:
+    # Минимум для StoreKit 2 — iOS 15. Поставлено 17.0 ради Observation и
+    # свежего SwiftUI; меняется здесь одной строкой, решение за владельцем.
+    iOS: "17.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    SWIFT_VERSION: "5.9"
+    DEVELOPMENT_LANGUAGE: ru
+
+targets:
+  ProShot:
+    type: application
+    platform: iOS
+    sources:
+      - path: ProShot
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: ai.proshot.app
+        INFOPLIST_KEY_CFBundleDisplayName: ProShot
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        # Только портрет: приложение про съёмку и просмотр портретов.
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
+        # Сохранение результата в галерею. Выбор фото идёт через PHPicker,
+        # ему разрешение не нужно вовсе — и это осознанно.
+        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Чтобы сохранить готовый портрет в вашу галерею."
+        # Только HTTPS, поэтому вопрос об экспорте шифрования закрыт заранее.
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+    info:
+      path: ProShot/Resources/Info.plist
+      properties:
+        CFBundleShortVersionString: "$(MARKETING_VERSION)"
+        CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
