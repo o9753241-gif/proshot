@@ -22,8 +22,17 @@ class PackageOut(BaseModel):
 
 
 class VerifyPurchaseRequest(BaseModel):
+    """Запрос на начисление пакета после оплаты.
+
+    Провайдер выбирается полем provider, а не догадками по содержимому:
+    у Apple приходит подписанный документ в signed_transaction, у Google —
+    токен в purchase_token. Значение по умолчанию — app_store, потому что
+    этот сервер обслуживает iOS-версию.
+    """
     sku: str
-    purchase_token: str
+    provider: str = "app_store"
+    signed_transaction: str | None = None
+    purchase_token: str | None = None
     scenes_selected: list[str] = []
 
 

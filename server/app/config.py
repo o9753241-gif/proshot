@@ -37,5 +37,22 @@ class Settings(BaseSettings):
     google_service_account_json: str = ""
     google_package_name: str = "ai.proshot.app"
 
+    # --- Apple / StoreKit 2 ---
+    # bundle_id совпадает с applicationId Android-версии: пространства имён
+    # Apple и Google независимы, конфликта нет.
+    apple_bundle_id: str = "ai.proshot.app"
+    # Числовой идентификатор приложения из App Store Connect. Нужен библиотеке
+    # проверки; пока приложение не заведено — 0, тогда передаём None.
+    apple_app_apple_id: int = 0
+    # Папка с корневыми сертификатами Apple (.cer). Без них подпись не проверить.
+    apple_root_ca_dir: str = ""
+    # Ключ для App Store Server API: файл .p8 плюс два идентификатора.
+    apple_key_id: str = ""
+    apple_issuer_id: str = ""
+    apple_private_key_path: str = ""
+    # Онлайн-проверка отзыва сертификатов при разборе подписи. Дороже и требует
+    # сети на каждую покупку, поэтому по умолчанию выключена.
+    apple_online_checks: bool = False
+
 
 settings = Settings()

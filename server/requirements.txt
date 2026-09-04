@@ -14,5 +14,5 @@ Pillow==10.4.0
 google-api-python-client==2.149.0
 google-auth==2.35.0
 
-# Появится на этапе 4 — проверка покупок Apple:
-# app-store-server-library==1.5.0
+# Проверка покупок Apple (этап 4)
+app-store-server-library==1.5.0

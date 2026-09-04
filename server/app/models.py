@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, Integer, DateTime, ForeignKey, JSON, Enum
+from sqlalchemy import String, Integer, DateTime, ForeignKey, JSON, Enum, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 import enum
 
@@ -42,6 +42,10 @@ class Package(Base):
 
 class Purchase(Base):
     __tablename__ = "purchases"
+    # Один и тот же токен не должен начислить пакет дважды. Проверка в billing.py
+    # ловит повтор запросом, но два одновременных запроса успевают проскочить мимо
+    # неё — ограничение в базе закрывает эту щель.
+    __table_args__ = (UniqueConstraint("provider", "provider_token", name="uq_purchase_provider_token"),)
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     package_id: Mapped[int] = mapped_column(ForeignKey("packages.id"))

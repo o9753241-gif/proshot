@@ -9,7 +9,9 @@
 
 ```
 server/     бэкенд iOS-инстанса (см. MERGE_REPORT.md — как он собран)
+server/tests/  прогон развилки покупок без обращения к Apple
 deploy/     systemd-юнит, файл Caddy, скрипт развёртывания
+docs/       APPLE_BILLING.md — как устроены покупки и что настроить
 ios/        проект Xcode — появится на этапе 5
 ```
 
@@ -31,8 +33,8 @@ bash deploy/deploy.sh
 
 1. ~~Apple Developer Program~~ — оплачен, ждём подтверждения
 2. **Свести две копии бэкенда** — сделано, см. `MERGE_REPORT.md`
-3. Поднять iOS-инстанс на VPS — файлы готовы в `deploy/`
-4. Проверка покупок Apple — `services/app_store.py` + развилка в `billing.py`
+3. Поднять iOS-инстанс на VPS — файлы готовы в `deploy/`, ждёт запуска
+4. **Проверка покупок Apple** — сделано, см. `docs/APPLE_BILLING.md`
 5. Xcode-проект (нужен Mac)
 6. Товары и запись приложения в App Store Connect
 7. Восемь экранов на SwiftUI
