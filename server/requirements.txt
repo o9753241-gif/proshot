@@ -1,0 +1,18 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+pydantic-settings==2.5.2
+sqlalchemy==2.0.35
+httpx==0.27.2
+python-dotenv==1.0.1
+python-multipart==0.0.12
+Pillow==10.4.0
+
+# Нужны настоящей проверке покупок Google Play (services/google_play.py).
+# В backend/requirements.txt Android-проекта их не было, хотя код их импортирует:
+# без них ветка проверки падала бы на импорте.
+google-api-python-client==2.149.0
+google-auth==2.35.0
+
+# Появится на этапе 4 — проверка покупок Apple:
+# app-store-server-library==1.5.0

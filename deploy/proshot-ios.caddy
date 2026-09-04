@@ -1,0 +1,6 @@
+# Отдельный файл, а не правка общего Caddyfile: общий уже затирали чужие деплои.
+# Кладётся в /etc/caddy/conf.d/proshot-ios.caddy
+proshot-ios.89-221-203-218.sslip.io {
+    reverse_proxy localhost:8011
+    encode zstd gzip
+}

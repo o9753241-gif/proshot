@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+.env
+*.db
+media/
+.DS_Store
+ios/build/
+ios/DerivedData/
+*.p8
