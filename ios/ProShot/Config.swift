@@ -2,6 +2,7 @@ import Foundation
 
 enum Config {
     /// Отдельный инстанс бэкенда для iOS. У Android свой, на 8010.
+    /// Без завершающего слэша: пути к нему приклеиваются строкой.
     static let apiBaseURL = URL(string: "https://proshot-ios.89-221-203-218.sslip.io")!
 
     /// Идентификаторы совпадают с SKU пакетов на сервере и с товарами

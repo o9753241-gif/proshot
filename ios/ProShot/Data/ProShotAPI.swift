@@ -109,7 +109,10 @@ actor ProShotAPI {
     // MARK: - Внутреннее
 
     private func base(path: String, method: String) -> URLRequest {
-        var request = URLRequest(url: Config.apiBaseURL.appending(path: path))
+        // Именно склейка строк, а не appending(path:): тот кодирует "?" как %3F
+        // и запрос со строкой параметров (styles?max_tier=3) уходил бы битым.
+        let url = URL(string: Config.apiBaseURL.absoluteString + path) ?? Config.apiBaseURL
+        var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue(DeviceID.current, forHTTPHeaderField: "X-Device-Id")
         request.setValue(Self.acceptLanguage, forHTTPHeaderField: "Accept-Language")
