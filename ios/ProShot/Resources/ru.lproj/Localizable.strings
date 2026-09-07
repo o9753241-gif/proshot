@@ -1,5 +1,4 @@
-/* Тексты перенесены из Android-версии без изменений:
-   app/src/main/res/values-ru/strings.xml */
+/* Перенесено из Android без изменений: res/values-ru/strings.xml */
 
 "app_name" = "ProShot";
 "onb_skip" = "Пропустить";
