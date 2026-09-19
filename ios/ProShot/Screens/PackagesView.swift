@@ -6,8 +6,8 @@ import StoreKit
 /// Серверная price_display остаётся запасным вариантом, пока товары не загрузились.
 struct PackagesView: View {
     @Binding var path: [Route]
-    @Environment(AppState.self) private var state
-    @Environment(PurchaseManager.self) private var purchases
+    @EnvironmentObject private var state: AppState
+    @EnvironmentObject private var purchases: PurchaseManager
 
     var body: some View {
         ScreenScaffold(title: L("packages_title"), subtitle: L("packages_subtitle")) {
@@ -40,23 +40,23 @@ private struct PackageRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
-                Text(pkg.title).font(.title3.bold())
+                Text(pkg.title).font(.inter(20, .semibold))
                 if isHit {
                     Text(L("pkg_hit"))
-                        .font(.caption2.bold())
+                        .font(.inter(11, .medium))
                         .padding(.horizontal, 8).padding(.vertical, 3)
                         .background(Color.accentColor, in: Capsule())
                         .foregroundStyle(.white)
                 }
                 Spacer()
-                Text(price).font(.title3.bold())
+                Text(price).font(.inter(20, .semibold))
             }
-            Text(L("pkg_photos", pkg.totalPhotos)).font(.subheadline)
+            Text(L("pkg_photos", pkg.totalPhotos)).font(.inter(14))
             Text(L("pkg_scenes_line", pkg.maxScenes, pkg.scenesPool))
-                .font(.caption).foregroundStyle(.secondary)
+                .font(.inter(12)).foregroundStyle(.secondary)
             HStack {
                 Spacer()
-                Text(L("pkg_choose")).font(.callout.bold()).foregroundStyle(Color.accentColor)
+                Text(L("pkg_choose")).font(.inter(16, .semibold)).foregroundStyle(Color.accentColor)
             }
         }
         .padding(16)

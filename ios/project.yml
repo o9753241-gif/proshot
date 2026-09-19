@@ -8,9 +8,10 @@ name: ProShot
 options:
   bundleIdPrefix: ai.proshot
   deploymentTarget:
-    # Минимум для StoreKit 2 — iOS 15. Поставлено 17.0 ради Observation и
-    # свежего SwiftUI; меняется здесь одной строкой, решение за владельцем.
-    iOS: "17.0"
+    # iOS 16: StoreKit 2 работает с 15, а всё, ради чего стояла 17 (Observation),
+    # переведено на ObservableObject. Ниже 16 не имеет смысла — доля устройств
+    # мизерная, а переделка слоя состояния большая.
+    iOS: "16.0"
   createIntermediateGroups: true
 
 settings:
@@ -29,17 +30,33 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: ai.proshot.app
-        INFOPLIST_KEY_CFBundleDisplayName: ProShot
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        # Только портрет: приложение про съёмку и просмотр портретов.
-        INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait
-        # Сохранение результата в галерею. Выбор фото идёт через PHPicker,
-        # ему разрешение не нужно вовсе — и это осознанно.
-        INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription: "Чтобы сохранить готовый портрет в вашу галерею."
-        # Только HTTPS, поэтому вопрос об экспорте шифрования закрыт заранее.
-        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        # Только iPhone. Универсальная сборка обязывает поддержать на iPad все
+        # четыре ориентации, иначе App Store отклоняет пакет (ошибка 90474).
+        TARGETED_DEVICE_FAMILY: "1"
+    # ВАЖНО: всё, что должно попасть в Info.plist, пишется ЗДЕСЬ. Настройки
+    # INFOPLIST_KEY_* работают только когда Xcode генерирует Info.plist сам;
+    # у нас файл свой, и такие ключи в него не попадают вовсе. Приложение
+    # из-за этого падало бы при первом обращении к камере или галерее.
     info:
       path: ProShot/Resources/Info.plist
       properties:
         CFBundleShortVersionString: "$(MARKETING_VERSION)"
         CFBundleVersion: "$(CURRENT_PROJECT_VERSION)"
+        CFBundleDisplayName: ProShot
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        ITSAppUsesNonExemptEncryption: false
+        # Объяснения доступа. Без любого из них система не покажет запрос,
+        # а завершит приложение.
+        NSCameraUsageDescription: "Чтобы снять портрет прямо в приложении."
+        NSPhotoLibraryUsageDescription: "Чтобы выбрать фотографии для портрета."
+        NSPhotoLibraryAddUsageDescription: "Чтобы сохранить готовый портрет в вашу галерею."
+        # Шрифт тот же, что в Android-версии: Inter, четыре начертания.
+        # Файлы обязаны быть перечислены здесь, иначе система их не увидит.
+        UIAppFonts:
+          - Inter-Regular.ttf
+          - Inter-Medium.ttf
+          - Inter-SemiBold.ttf
+          - Inter-Bold.ttf

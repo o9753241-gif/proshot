@@ -6,7 +6,7 @@ enum Route: Hashable {
 }
 
 struct RootView: View {
-    @Environment(AppState.self) private var state
+    @EnvironmentObject private var state: AppState
     @State private var path: [Route] = []
     @State private var showOnboarding = false
 

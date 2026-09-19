@@ -3,14 +3,16 @@ import SwiftUI
 @main
 @MainActor
 struct ProShotApp: App {
-    @State private var state = AppState()
-    @State private var purchases = PurchaseManager()
+    @StateObject private var state = AppState()
+    @StateObject private var purchases = PurchaseManager()
 
-    var body: some Scene {
+    // SwiftUI.Scene полностью: в модуле может оказаться свой тип Scene,
+    // и тогда короткая запись ломается — в Starshot так и случилось.
+    var body: some SwiftUI.Scene {
         WindowGroup {
             RootView()
-                .environment(state)
-                .environment(purchases)
+                .environmentObject(state)
+                .environmentObject(purchases)
                 .task {
                     // Слушатель транзакций поднимается на старте приложения:
                     // покупка могла завершиться, пока приложение было закрыто.

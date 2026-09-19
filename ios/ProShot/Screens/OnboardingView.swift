@@ -24,10 +24,10 @@ struct OnboardingView: View {
                     VStack(alignment: .leading, spacing: 16) {
                         Spacer()
                         Text(pages[index].0)
-                            .font(.largeTitle.bold())
+                            .font(.inter(32, .bold))
                             .fixedSize(horizontal: false, vertical: true)
                         Text(pages[index].1)
-                            .font(.body)
+                            .font(.inter(16))
                             .foregroundStyle(.secondary)
                             .fixedSize(horizontal: false, vertical: true)
                         Spacer()

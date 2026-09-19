@@ -13,8 +13,7 @@ import StoreKit
 /// в этот момент связи не будет, восстанавливать станет нечем. Незакрытую
 /// транзакцию Apple принесёт снова — в том числе после перезапуска приложения.
 @MainActor
-@Observable
-final class PurchaseManager {
+final class PurchaseManager: ObservableObject {
 
     enum Outcome {
         case success(PurchaseDTO)
@@ -24,8 +23,8 @@ final class PurchaseManager {
         case failed(String)
     }
 
-    private(set) var products: [Product] = []
-    private(set) var isLoading = false
+    @Published private(set) var products: [Product] = []
+    @Published private(set) var isLoading = false
     /// Последняя известная активная покупка — её отдаёт сервер, не StoreKit.
     private(set) var activePurchase: PurchaseDTO?
 

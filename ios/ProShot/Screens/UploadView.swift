@@ -3,7 +3,7 @@ import SwiftUI
 /// Одно селфи плюс необязательные рост и вес — их сервер подставляет в промпт.
 struct UploadView: View {
     @Binding var path: [Route]
-    @Environment(AppState.self) private var state
+    @EnvironmentObject private var state: AppState
 
     @State private var showPicker = false
     @State private var height = ""
@@ -28,7 +28,7 @@ struct UploadView: View {
                             Image(systemName: "person.crop.square.badge.camera")
                                 .font(.system(size: 40))
                                 .foregroundStyle(.secondary)
-                            Text(L("upload_pick")).font(.callout).foregroundStyle(.secondary)
+                            Text(L("upload_pick")).font(.inter(16)).foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -41,7 +41,7 @@ struct UploadView: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Text(L("upload_body_hint")).font(.footnote).foregroundStyle(.secondary)
+                Text(L("upload_body_hint")).font(.inter(13)).foregroundStyle(.secondary)
                 HStack(spacing: 12) {
                     LabeledField(title: L("upload_height_label"), text: $height)
                     LabeledField(title: L("upload_weight_label"), text: $weight)
@@ -68,7 +68,7 @@ private struct LabeledField: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(title).font(.caption).foregroundStyle(.secondary)
+            Text(title).font(.inter(12)).foregroundStyle(.secondary)
             TextField("", text: $text)
                 .keyboardType(.numberPad)
                 .textFieldStyle(.roundedBorder)

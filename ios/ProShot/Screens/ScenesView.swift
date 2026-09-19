@@ -4,7 +4,7 @@ import SwiftUI
 /// Сервер проверяет это же число и вернёт 400, если прислать больше.
 struct ScenesView: View {
     @Binding var path: [Route]
-    @Environment(AppState.self) private var state
+    @EnvironmentObject private var state: AppState
 
     var body: some View {
         ScreenScaffold(title: L("scenes_title"), subtitle: subtitle) {

@@ -6,25 +6,27 @@ import SwiftUI
 /// Один объект на всё приложение — как PurchaseFlowState в Android-версии.
 /// Экраны его читают и меняют, сеть живёт в ProShotAPI.
 @MainActor
-@Observable
-final class AppState {
+/// Наблюдение через ObservableObject, а не @Observable: последний доступен
+/// только с iOS 17 и поднимал бы минимальную версию системы. Приложение
+/// должно ставиться и на iOS 16.
+final class AppState: ObservableObject {
 
     // Данные с сервера
-    var packages: [PackageDTO] = []
-    var styles: [StyleDTO] = []
+    @Published var packages: [PackageDTO] = []
+    @Published var styles: [StyleDTO] = []
 
     // Выбор пользователя
-    var selectedPackage: PackageDTO?
-    var selectedScenes: [String] = []
-    var photoData: Data?
-    var heightCm: Int?
-    var weightKg: Int?
+    @Published var selectedPackage: PackageDTO?
+    @Published var selectedScenes: [String] = []
+    @Published var photoData: Data?
+    @Published var heightCm: Int?
+    @Published var weightKg: Int?
 
     // Результаты генерации: сцена → адреса готовых фото
-    var results: [String: [URL]] = [:]
+    @Published var results: [String: [URL]] = [:]
 
-    var isLoading = false
-    var errorMessage: String?
+    @Published var isLoading = false
+    @Published var errorMessage: String?
 
     /// Показывать ли онбординг. Один раз на установку, как на Android.
     var needsOnboarding: Bool {

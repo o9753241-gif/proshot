@@ -1,0 +1,184 @@
+# Сборка iOS-клиента ProShot на Codemagic.
+#
+# .xcodeproj в репозитории не хранится — он собирается из ios/project.yml
+# командой xcodegen. Поэтому первым шагом в обоих сценариях идёт генерация
+# проекта, и только потом сборка.
+#
+# Сценариев два:
+#   ios-check   — сборка под симулятор без подписи. Ничего не требует от
+#                 App Store Connect и годится, чтобы просто убедиться, что
+#                 код компилируется. Запускать можно хоть на каждый push.
+#   ios-release — архив, подпись и выгрузка в TestFlight. Требует настроенной
+#                 интеграции с App Store Connect.
+
+definitions:
+  base_env: &base_env
+    vars:
+      XCODE_PROJECT: "ios/ProShot.xcodeproj"
+      XCODE_SCHEME: "ProShot"
+      BUNDLE_ID: "ai.proshot.app"
+      # Числовой идентификатор приложения в App Store Connect. Заполнить после
+      # того, как ProShot будет там заведён: сборка берёт по нему следующий
+      # номер после того, что уже в TestFlight. Пока пусто — шаг с номером
+      # просто отработает от нуля.
+      APP_STORE_APPLE_ID: ""
+    xcode: latest
+
+  generate_project: &generate_project
+    name: Сгенерировать .xcodeproj из project.yml
+    script: |
+      brew install xcodegen
+      cd ios && xcodegen generate
+
+workflows:
+
+  # ──────────────────────────────────────────────────────────────────
+  ios-check:
+    name: ProShot iOS — проверка сборки
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    environment:
+      <<: *base_env
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+          include: true
+    scripts:
+      - *generate_project
+      - name: Собрать под симулятор без подписи
+        script: |
+          # Полный вывод xcodebuild — это десятки тысяч строк команд компилятора,
+          # среди которых две-три настоящие ошибки. Поэтому лог пишем в файл, а в
+          # конце печатаем только строки с error: — их и видно в отчёте.
+          set -o pipefail
+          xcodebuild \
+            -project "$XCODE_PROJECT" \
+            -scheme "$XCODE_SCHEME" \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            -derivedDataPath "$CM_BUILD_DIR/dd" \
+            CODE_SIGNING_ALLOWED=NO \
+            build 2>&1 | tee "$CM_BUILD_DIR/xcodebuild.log" \
+          || {
+            echo "════════ ОШИБКИ КОМПИЛЯЦИИ ════════"
+            grep -E "error:" "$CM_BUILD_DIR/xcodebuild.log" | sort -u
+            echo "═══════════════════════════════════"
+            exit 1
+          }
+      - name: Упаковать сборку для Appetize
+        script: |
+          # Appetize принимает симуляторную сборку .app, упакованную в zip.
+          # Подпись ей не нужна — именно поэтому учётная запись Apple здесь
+          # не требуется вовсе.
+          APP=$(find "$CM_BUILD_DIR/dd/Build/Products" -name "ProShot.app" -maxdepth 3 | head -1)
+          if [ -z "$APP" ]; then
+            echo "ProShot.app не найден — смотреть выше, что собралось"
+            exit 1
+          fi
+          cd "$(dirname "$APP")"
+          zip -r -q "$CM_BUILD_DIR/ProShot-simulator.zip" "ProShot.app"
+          echo "Готово: $(du -h "$CM_BUILD_DIR/ProShot-simulator.zip" | cut -f1)"
+      - name: Запустить в симуляторе и снять экраны
+        script: |
+          # Интерактивно погонять приложение здесь нельзя, но можно поднять
+          # симулятор, поставить сборку, запустить и снять несколько кадров.
+          # Этого хватает, чтобы увидеть: запускается ли вообще, доходит ли до
+          # экранов, загрузились ли сцены с сервера. Плюс забираем журнал —
+          # в нём видно падение, если оно случилось.
+          set -e
+          APP=$(find "$CM_BUILD_DIR/dd/Build/Products" -name "ProShot.app" -maxdepth 3 | head -1)
+          # Первый доступный iPhone из списка. Через grep, а не через python:
+          # вложенный скрипт с отступами внутри YAML ломается об отступы.
+          UDID=$(xcrun simctl list devices available \
+                 | grep -m1 "iPhone" \
+                 | grep -oE "[0-9A-Fa-f]{8}-[0-9A-Fa-f-]{27}")
+          if [ -z "$UDID" ]; then echo "симулятор iPhone не найден"; exit 1; fi
+          echo "Симулятор: $UDID"
+
+          mkdir -p "$CM_BUILD_DIR/shots"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" ai.proshot.app || echo "запуск вернул ошибку — смотри журнал ниже"
+
+          # Кадры с паузами: первый ловит запуск, последние — загруженные данные.
+          for i in 1 2 3 4 5 6; do
+            sleep 4
+            xcrun simctl io "$UDID" screenshot "$CM_BUILD_DIR/shots/0$i.png" || true
+          done
+
+          xcrun simctl spawn "$UDID" log show --last 3m \
+            --predicate 'process == "ProShot"' \
+            > "$CM_BUILD_DIR/shots/app.log" 2>&1 || true
+
+          echo "════════ ПАДЕНИЯ, ЕСЛИ БЫЛИ ════════"
+          grep -iE "fatal|exception|terminating|crash" "$CM_BUILD_DIR/shots/app.log" | head -20 || echo "не найдено"
+    artifacts:
+      - shots/*.png
+      - shots/app.log
+      - ProShot-simulator.zip
+      - xcodebuild.log
+      - /tmp/xcodebuild_logs/*.log
+
+  # ──────────────────────────────────────────────────────────────────
+  ios-release:
+    name: ProShot iOS — TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      # Имя ключа App Store Connect, заведённого в Codemagic:
+      # Teams → Integrations → App Store Connect. Подставь своё.
+      # Ключ App Store Connect выдаётся на всю команду, а не на приложение,
+      # поэтому используем тот же, что уже подключён для Starshot.
+      app_store_connect: StarshotAppStoreKey
+    environment:
+      <<: *base_env
+      groups:
+        # Группа с переменной CERTIFICATE_PRIVATE_KEY — закрытым ключом
+        # сертификата распространения. Ключ App Store Connect её не заменяет:
+        # тот открывает доступ к учётной записи, а этот подписывает сборку.
+        # Без него шаг получения профилей падает с "Cannot save Signing
+        # Certificates without certificate private key".
+        - code-signing
+      # Блока ios_signing здесь намеренно нет. Он описывает РУЧНУЮ подпись —
+      # заранее загруженные в Codemagic сертификат и профиль. У нас подпись
+      # автоматическая: профиль создаётся и забирается шагами ниже, через
+      # app-store-connect. Если оставить оба способа, сборка падает с
+      # "No matching profiles found for bundle identifier".
+    scripts:
+      - *generate_project
+      - name: Подготовить связку ключей
+        script: keychain initialize
+      - name: Получить профили подписи
+        script: |
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+      - name: Установить профили в проект
+        script: |
+          keychain add-certificates
+          xcode-project use-profiles
+      - name: Номер сборки — следующий за тем, что уже в TestFlight
+        script: |
+          BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number "$APP_STORE_APPLE_ID" --platform IOS 2>/dev/null || echo 0)
+          echo "Следующий номер: $((BUILD_NUMBER + 1))"
+          cd ios && agvtool new-version -all $((BUILD_NUMBER + 1))
+      - name: Собрать ipa
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        # false — сборка выгружается и сразу доступна ВНУТРЕННИМ тестировщикам,
+        # проверки не требуется. true отправляет её на проверку бета-версии для
+        # внешних тестировщиков, а та требует заполненных контактов и почты для
+        # отзывов; без них шаг падает, хотя сборка уже загружена и годна.
+        submit_to_testflight: false

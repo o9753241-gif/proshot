@@ -3,7 +3,7 @@ import SwiftUI
 /// Каталог сцен, сгруппированный по тарифам. Первый экран после онбординга.
 struct CatalogView: View {
     @Binding var path: [Route]
-    @Environment(AppState.self) private var state
+    @EnvironmentObject private var state: AppState
 
     private let tiers: [(tier: Int, name: String, note: String)] = [
         (1, L("tier_basic"),    L("tier_desc_basic")),
@@ -23,15 +23,15 @@ struct CatalogView: View {
                     if !scenes.isEmpty {
                         VStack(alignment: .leading, spacing: 10) {
                             HStack(alignment: .firstTextBaseline) {
-                                Text(tier.name).font(.title3.bold())
+                                Text(tier.name).font(.inter(20, .semibold))
                                 Spacer()
                                 Text(tier.tier == 1
                                      ? L("tier_count_first", scenes.count)
                                      : L("tier_count_more", scenes.count))
-                                    .font(.caption)
+                                    .font(.inter(12))
                                     .foregroundStyle(.secondary)
                             }
-                            Text(tier.note).font(.caption).foregroundStyle(.secondary)
+                            Text(tier.note).font(.inter(12)).foregroundStyle(.secondary)
                             SceneGrid(scenes: scenes)
                         }
                         .padding(.top, 8)
@@ -60,11 +60,11 @@ struct SceneGrid: View {
             ForEach(scenes) { scene in
                 VStack(spacing: 6) {
                     ZStack(alignment: .topTrailing) {
-                        AsyncImage(url: URL(string: scene.previewUrl)) { image in
-                            image.resizable().aspectRatio(1, contentMode: .fill)
-                        } placeholder: {
-                            Rectangle().fill(.quaternary).aspectRatio(1, contentMode: .fill)
+                        CachedImage(url: URL(string: scene.previewUrl)) {
+                            Rectangle().fill(.quaternary)
                         }
+                        .aspectRatio(1, contentMode: .fill)
+                        .clipped()
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .overlay {
                             RoundedRectangle(cornerRadius: 10)
@@ -79,7 +79,7 @@ struct SceneGrid: View {
                         }
                     }
                     Text(scene.title)
-                        .font(.caption2)
+                        .font(.inter(11))
                         .lineLimit(2)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
@@ -97,7 +97,7 @@ struct ErrorBlock: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            Text(message).font(.subheadline).multilineTextAlignment(.center)
+            Text(message).font(.inter(14)).multilineTextAlignment(.center)
             Button(L("retry"), action: retry).buttonStyle(.bordered)
         }
         .frame(maxWidth: .infinity)

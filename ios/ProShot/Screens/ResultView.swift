@@ -6,7 +6,7 @@ import SwiftUI
 /// результат и решает, тратить ли следующий снимок. Бюджет пакета виден всегда.
 struct ResultView: View {
     @Binding var path: [Route]
-    @Environment(AppState.self) private var state
+    @EnvironmentObject private var state: AppState
 
     @State private var currentScene: String?
     @State private var latest: URL?
@@ -27,18 +27,17 @@ struct ResultView: View {
                         ProgressView()
                         Text(currentScene.flatMap { state.scene(for: $0)?.title }
                              .map { L("result_generating", $0) } ?? L("result_generating_short"))
-                            .font(.footnote).foregroundStyle(.secondary)
+                            .font(.inter(13)).foregroundStyle(.secondary)
                     }
                 } else if let latest {
-                    AsyncImage(url: latest) { image in
-                        image.resizable().aspectRatio(contentMode: .fit)
-                    } placeholder: {
+                    CachedImage(url: latest) {
                         ProgressView()
                     }
+                    .aspectRatio(contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 14))
                 } else {
                     Text(L("result_pick_scene_hint"))
-                        .font(.callout)
+                        .font(.inter(16))
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(24)
@@ -61,14 +60,14 @@ struct ResultView: View {
             }
 
             if let error {
-                Text(error).font(.footnote).foregroundStyle(.red)
+                Text(error).font(.inter(13)).foregroundStyle(.red)
             }
             if let toast {
-                Text(toast).font(.footnote).foregroundStyle(.secondary)
+                Text(toast).font(.inter(13)).foregroundStyle(.secondary)
             }
 
             // Выбранные сцены: нажатие тратит один снимок из пакета.
-            Text(L("result_next_scene")).font(.headline).padding(.top, 8)
+            Text(L("result_next_scene")).font(.inter(18, .semibold)).padding(.top, 8)
             SceneGrid(scenes: state.selectedScenes.compactMap(state.scene(for:)),
                       selected: Set([currentScene].compactMap { $0 })) { key in
                 guard !generating, state.remainingBudget > 0 else { return }

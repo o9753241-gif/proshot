@@ -4,8 +4,8 @@ import StoreKit
 /// Превью заказа и оплата. Единственное место, где начинается покупка.
 struct SummaryView: View {
     @Binding var path: [Route]
-    @Environment(AppState.self) private var state
-    @Environment(PurchaseManager.self) private var purchases
+    @EnvironmentObject private var state: AppState
+    @EnvironmentObject private var purchases: PurchaseManager
 
     @State private var paying = false
     @State private var message: String?
@@ -15,12 +15,12 @@ struct SummaryView: View {
         ScreenScaffold(title: L("summary_title"), subtitle: L("summary_subtitle")) {
             if let pkg = state.selectedPackage {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text(pkg.title).font(.title3.bold())
+                    Text(pkg.title).font(.inter(20, .semibold))
                     Text(L("summary_recap",
                            state.selectedScenes.count,
                            state.photosPerScene,
                            pkg.totalPhotos))
-                        .font(.subheadline)
+                        .font(.inter(14))
                         .foregroundStyle(.secondary)
                 }
                 .padding(16)
@@ -31,13 +31,13 @@ struct SummaryView: View {
 
                 if serverPending {
                     Text(L("billing_server_pending"))
-                        .font(.footnote)
+                        .font(.inter(13))
                         .padding(12)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(.yellow.opacity(0.18), in: RoundedRectangle(cornerRadius: 10))
                 }
                 if let message {
-                    Text(message).font(.footnote).foregroundStyle(.red)
+                    Text(message).font(.inter(13)).foregroundStyle(.red)
                 }
             }
         } bottom: {
