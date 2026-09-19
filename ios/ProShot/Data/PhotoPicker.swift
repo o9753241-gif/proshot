@@ -2,13 +2,15 @@ import SwiftUI
 import PhotosUI
 import Photos
 
-/// Выбор фото через PHPicker.
+/// Выбор фото через PHPicker — запасной путь, если камеры нет.
 ///
-/// PHPicker не требует разрешения на доступ к галерее вовсе: система сама
-/// показывает выбор, а приложение получает только выбранный снимок. Поэтому в
-/// Info.plist нет NSPhotoLibraryUsageDescription — и на ревью нечего объяснять.
+/// PHPicker не требует разрешения на доступ к галерее: система сама показывает
+/// выбор, а приложение получает только выбранный снимок.
+///
+/// Отдаём UIImage, а не готовый JPEG: снимок ещё предстоит прогнать через
+/// разбор Vision, а тот работает с картинкой.
 struct PhotoPicker: UIViewControllerRepresentable {
-    @Binding var data: Data?
+    @Binding var image: UIImage?
     @Environment(\.dismiss) private var dismiss
 
     func makeUIViewController(context: Context) -> PHPickerViewController {
@@ -34,11 +36,8 @@ struct PhotoPicker: UIViewControllerRepresentable {
                   provider.canLoadObject(ofClass: UIImage.self) else { return }
 
             provider.loadObject(ofClass: UIImage.self) { object, _ in
-                guard let image = object as? UIImage else { return }
-                // Ужимаем до 2048 по длинной стороне: дальше качество генерации
-                // не растёт, а загрузка по мобильной сети заметно дольше.
-                let jpeg = image.resized(maxSide: 2048).jpegData(compressionQuality: 0.9)
-                Task { @MainActor in self.parent.data = jpeg }
+                guard let picked = object as? UIImage else { return }
+                Task { @MainActor in self.parent.image = picked.normalizedUp() }
             }
         }
     }
@@ -65,10 +64,16 @@ enum PhotoSaver {
         do {
             let (data, _) = try await URLSession.shared.data(from: url)
             guard let image = UIImage(data: data) else { return false }
+            return await save(image: image)
+        } catch {
+            return false
+        }
+    }
 
-            let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
-            guard status == .authorized || status == .limited else { return false }
-
+    static func save(image: UIImage) async -> Bool {
+        let status = await PHPhotoLibrary.requestAuthorization(for: .addOnly)
+        guard status == .authorized || status == .limited else { return false }
+        do {
             try await PHPhotoLibrary.shared().performChanges {
                 PHAssetChangeRequest.creationRequestForAsset(from: image)
             }

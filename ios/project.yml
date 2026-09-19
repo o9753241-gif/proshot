@@ -50,9 +50,11 @@ targets:
         ITSAppUsesNonExemptEncryption: false
         # Объяснения доступа. Без любого из них система не покажет запрос,
         # а завершит приложение.
-        NSCameraUsageDescription: "Чтобы снять портрет прямо в приложении."
-        NSPhotoLibraryUsageDescription: "Чтобы выбрать фотографии для портрета."
-        NSPhotoLibraryAddUsageDescription: "Чтобы сохранить готовый портрет в вашу галерею."
+        # Значения на языке разработки. Переводы лежат в
+        # Resources/<язык>.lproj/InfoPlist.strings и перекрывают эти строки.
+        NSCameraUsageDescription: "To take your portrait right in the app and check the frame before the shutter."
+        NSPhotoLibraryUsageDescription: "To pick a photo from your library when the camera isn't available."
+        NSPhotoLibraryAddUsageDescription: "To save the finished portrait to your photo library."
         # Шрифт тот же, что в Android-версии: Inter, четыре начертания.
         # Файлы обязаны быть перечислены здесь, иначе система их не увидит.
         UIAppFonts:

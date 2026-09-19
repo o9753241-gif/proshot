@@ -27,6 +27,17 @@ struct PackageDTO: Decodable, Identifiable, Hashable {
     var id: String { sku }
 }
 
+/// Отраслевая подборка сцен. Каталог из полусотни сцен целиком человеку
+/// не нужен — нужны те, что уместны в его работе.
+struct IndustryDTO: Decodable, Identifiable, Hashable {
+    let key: String
+    let title: String
+    let sceneCount: Int
+    let previewUrl: String
+
+    var id: String { key }
+}
+
 struct StyleDTO: Decodable, Identifiable, Hashable {
     let key: String
     let title: String

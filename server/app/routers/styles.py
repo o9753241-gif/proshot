@@ -3,7 +3,7 @@ import random
 import threading
 from pathlib import Path
 from fastapi import APIRouter, Header, Query
-from app.schemas import StyleOut
+from app.schemas import IndustryOut, StyleOut
 from app.services.i18n import pick_lang, tr_scene
 
 router = APIRouter()
@@ -452,6 +452,83 @@ _STYLES: list[dict] = [
 
 # Отслеживание использованных вариантов на устройство+сцену.
 # Когда все варианты этой сцены показаны данному устройству — цикл сбрасывается.
+# ═══ ОТРАСЛЕВЫЕ ПОДБОРКИ ═══
+#
+# Каталог из 47 сцен целиком человеку не нужен: ему нужны те, что уместны
+# в его профессии. Подборка — это просто список ключей; сами сцены не
+# дублируются и не меняются. Порядок внутри подборки задаёт _STYLES,
+# то есть тиры идут по возрастанию — от этого зависит scenes_pool.
+_INDUSTRIES: list[dict] = [
+    dict(key="tech", title="IT и продукт", scenes=[
+        "linkedin_classic", "at_laptop", "clean_studio", "home_office", "minimal_grey",
+        "modern_glass", "tech_dark", "whiteboard", "cyberpunk",
+        "tech_hologram", "keynote_stage", "magazine_cover",
+    ]),
+    dict(key="finance", title="Финансы и право", scenes=[
+        "business_light", "corporate_navy", "business_office", "reading_docs", "bookshelf",
+        "library_dark", "modern_lobby",
+        "ceo_boardroom", "strategy_meeting", "business_dinner", "black_tie_gala", "private_jet",
+    ]),
+    dict(key="sales", title="Продажи и недвижимость", scenes=[
+        "linkedin_classic", "business_light", "casual_smart", "warm_office", "modern_glass",
+        "phone_call", "rooftop", "urban_street", "realtor", "modern_lobby",
+        "vineyard", "golf_club", "yacht",
+    ]),
+    dict(key="creative", title="Креатив и медиа", scenes=[
+        "clean_studio", "casual_smart", "coffee_cup",
+        "creative_studio", "podcast_studio", "art_gallery", "urban_street", "brick_wall",
+        "cinema_studio", "fashion_editorial", "magazine_cover", "museum",
+    ]),
+    dict(key="education", title="Образование и наука", scenes=[
+        "clean_studio", "reading_docs", "bookshelf", "minimal_grey",
+        "university", "library_dark", "whiteboard", "art_gallery",
+        "keynote_stage", "strategy_meeting", "museum",
+    ]),
+    dict(key="executive", title="Руководство", scenes=[
+        "business_light", "corporate_navy", "business_office", "modern_glass",
+        "rooftop", "modern_lobby",
+        "ceo_boardroom", "keynote_stage", "strategy_meeting", "with_award",
+        "private_jet", "black_tie_gala", "magazine_cover",
+    ]),
+    dict(key="personal", title="Личный бренд", scenes=[
+        "casual_smart", "coffee_cup", "home_office", "warm_office",
+        "cafe_window", "urban_street", "brick_wall", "rooftop",
+        "cinema_studio", "fashion_editorial", "beach_sunset", "mountain_top", "christmas",
+    ]),
+]
+
+# Названия подборок. Отдельно от SCENE_TITLES: там переводы названий сцен,
+# а это другой словарь и смешивать их незачем.
+_INDUSTRY_TITLES: dict[str, dict[str, str]] = {
+    "tech":      {"en": "Tech & product",        "es": "Tecnología y producto", "pt": "Tecnologia e produto", "de": "Tech & Produkt",        "fr": "Tech et produit"},
+    "finance":   {"en": "Finance & law",         "es": "Finanzas y derecho",    "pt": "Finanças e direito",   "de": "Finanzen & Recht",      "fr": "Finance et droit"},
+    "sales":     {"en": "Sales & real estate",   "es": "Ventas e inmobiliaria", "pt": "Vendas e imóveis",     "de": "Vertrieb & Immobilien", "fr": "Vente et immobilier"},
+    "creative":  {"en": "Creative & media",      "es": "Creatividad y medios",  "pt": "Criativo e mídia",     "de": "Kreativ & Medien",      "fr": "Création et médias"},
+    "education": {"en": "Education & science",   "es": "Educación y ciencia",   "pt": "Educação e ciência",   "de": "Bildung & Wissenschaft","fr": "Éducation et science"},
+    "executive": {"en": "Executive",             "es": "Dirección",             "pt": "Direção",              "de": "Führung",               "fr": "Direction"},
+    "personal":  {"en": "Personal brand",        "es": "Marca personal",        "pt": "Marca pessoal",        "de": "Personal Branding",     "fr": "Marque personnelle"},
+}
+
+
+def _industry_title(key: str, ru_title: str, lang: str) -> str:
+    if lang == "ru":
+        return ru_title
+    return _INDUSTRY_TITLES.get(key, {}).get(lang, ru_title)
+
+
+def _industry_scene_keys(key: str) -> list[str] | None:
+    """Ключи сцен подборки в порядке каталога — то есть тиры по возрастанию.
+
+    Порядок важен: клиент берёт первые scenes_pool сцен, и если премиальная
+    окажется в начале списка, базовый тариф до неё дотянется.
+    """
+    industry = next((i for i in _INDUSTRIES if i["key"] == key), None)
+    if industry is None:
+        return None
+    wanted = set(industry["scenes"])
+    return [s["key"] for s in _STYLES if s["key"] in wanted]
+
+
 _used_variants: dict[tuple[str, str], set[int]] = {}
 _used_lock = threading.Lock()
 
@@ -490,10 +567,38 @@ def get_prompt(style_key: str, device_id: str = "") -> str | None:
     return variants[idx]
 
 
+@router.get("/industries", response_model=list[IndustryOut])
+def list_industries(
+    accept_language: str | None = Header(default=None, alias="Accept-Language"),
+):
+    """Подборки сцен по профессии. Сами сцены отдаёт /styles."""
+    lang = pick_lang(accept_language)
+    out: list[IndustryOut] = []
+    for industry in _INDUSTRIES:
+        keys = _industry_scene_keys(industry["key"]) or []
+        cover = next((s for s in _STYLES if s["key"] == keys[0]), None) if keys else None
+        out.append(IndustryOut(
+            key=industry["key"],
+            title=_industry_title(industry["key"], industry["title"], lang),
+            scene_count=len(keys),
+            preview_url=_to_public(cover, lang).preview_url if cover else "",
+        ))
+    return out
+
+
 @router.get("", response_model=list[StyleOut])
 def list_styles(
     max_tier: int = Query(default=3, ge=1, le=3),
+    industry: str | None = Query(default=None),
     accept_language: str | None = Header(default=None, alias="Accept-Language"),
 ):
     lang = pick_lang(accept_language)
-    return [_to_public(s, lang) for s in _STYLES if s["tier"] <= max_tier]
+    styles = [s for s in _STYLES if s["tier"] <= max_tier]
+    if industry:
+        keys = _industry_scene_keys(industry)
+        # Неизвестная подборка — отдаём весь каталог, а не пустоту: пустой
+        # экран человек прочтёт как поломку.
+        if keys is not None:
+            allowed = set(keys)
+            styles = [s for s in styles if s["key"] in allowed]
+    return [_to_public(s, lang) for s in styles]

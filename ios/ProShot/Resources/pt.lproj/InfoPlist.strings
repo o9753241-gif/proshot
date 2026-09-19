@@ -1,0 +1,5 @@
+/* Объяснения доступа. Значения из Info.plist переопределяются здесь
+   для каждого языка — иначе англоязычный пользователь видит русский текст. */
+"NSCameraUsageDescription" = "Para fazer o retrato no próprio app e verificar o enquadramento antes do disparo.";
+"NSPhotoLibraryUsageDescription" = "Para escolher uma foto da galeria quando a câmera não está disponível.";
+"NSPhotoLibraryAddUsageDescription" = "Para salvar o retrato pronto na sua galeria.";

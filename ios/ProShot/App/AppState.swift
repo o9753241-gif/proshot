@@ -14,16 +14,27 @@ final class AppState: ObservableObject {
     // Данные с сервера
     @Published var packages: [PackageDTO] = []
     @Published var styles: [StyleDTO] = []
+    @Published var industries: [IndustryDTO] = []
 
     // Выбор пользователя
     @Published var selectedPackage: PackageDTO?
     @Published var selectedScenes: [String] = []
-    @Published var photoData: Data?
+    /// Отрасль: по ней каталог показывает свою подборку сцен.
+    @Published var industry: String?
+    /// Три снятых кадра. Слот пустой, пока кадр не снят; порядок совпадает
+    /// с порядком подсказок на экране съёмки.
+    @Published var shots: [CapturedShot?] = Array(repeating: nil, count: AppState.shotCount)
     @Published var heightCm: Int?
     @Published var weightKg: Int?
 
+    /// Сколько кадров снимаем в проходе.
+    static let shotCount = 3
+
     // Результаты генерации: сцена → адреса готовых фото
     @Published var results: [String: [URL]] = [:]
+
+    /// Снимок, который сейчас раскладывают по форматам на экране кадрировок.
+    @Published var cropSource: URL?
 
     @Published var isLoading = false
     @Published var errorMessage: String?
@@ -42,12 +53,35 @@ final class AppState: ObservableObject {
         do {
             _ = try await ProShotAPI.shared.registerDevice()
             async let packages = ProShotAPI.shared.packages()
+            async let industries = ProShotAPI.shared.industries()
             async let styles = ProShotAPI.shared.styles(maxTier: 3)
             self.packages = try await packages
+            self.industries = try await industries
             self.styles = try await styles
         } catch {
             errorMessage = (error as? APIError)?.errorDescription ?? L("error_network")
         }
+    }
+
+    /// Переключение подборки. Сцены перезапрашиваются с сервера: фильтрация
+    /// живёт там, и состав подборки можно поправить без новой версии приложения.
+    func selectIndustry(_ key: String?) async {
+        industry = key
+        selectedScenes = []
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            styles = try await ProShotAPI.shared.styles(maxTier: 3, industry: key)
+            errorMessage = nil
+        } catch {
+            errorMessage = (error as? APIError)?.errorDescription ?? L("error_network")
+        }
+    }
+
+    /// Название выбранной подборки для подзаголовков.
+    var industryTitle: String {
+        guard let industry else { return L("industry_all") }
+        return industries.first { $0.key == industry }?.title ?? L("industry_all")
     }
 
     // MARK: - Производные величины
@@ -58,6 +92,20 @@ final class AppState: ObservableObject {
         guard let pkg = selectedPackage else { return styles }
         return Array(styles.prefix(pkg.scenesPool))
     }
+
+    var capturedCount: Int {
+        shots.compactMap { $0 }.count
+    }
+
+    /// Кадр, который уходит в генерацию: самый чистый по разбору Vision.
+    /// При равных оценках выигрывает более резкий.
+    var bestShot: CapturedShot? {
+        shots.compactMap { $0 }.max {
+            ($0.quality.score, $0.quality.sharpness) < ($1.quality.score, $1.quality.sharpness)
+        }
+    }
+
+    var photoData: Data? { bestShot?.data }
 
     var totalGenerated: Int {
         results.values.reduce(0) { $0 + $1.count }
@@ -91,6 +139,7 @@ final class AppState: ObservableObject {
     func startOver() {
         selectedPackage = nil
         selectedScenes = []
-        photoData = nil
+        industry = nil
+        shots = Array(repeating: nil, count: AppState.shotCount)
     }
 }

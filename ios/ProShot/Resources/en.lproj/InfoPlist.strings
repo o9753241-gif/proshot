@@ -1,0 +1,5 @@
+/* Объяснения доступа. Значения из Info.plist переопределяются здесь
+   для каждого языка — иначе англоязычный пользователь видит русский текст. */
+"NSCameraUsageDescription" = "To take your portrait right in the app and check the frame before the shutter.";
+"NSPhotoLibraryUsageDescription" = "To pick a photo from your library when the camera isn't available.";
+"NSPhotoLibraryAddUsageDescription" = "To save the finished portrait to your photo library.";

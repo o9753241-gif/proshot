@@ -57,6 +57,14 @@ struct ResultView: View {
                     ShareLink(item: latest) { Text(L("result_share")) }
                         .buttonStyle(.bordered)
                 }
+
+                // Главное действие после удачного кадра: разложить его по
+                // рабочим форматам. Считается на устройстве, фото не тратит.
+                Button(L("result_crops")) {
+                    state.cropSource = latest
+                    path.append(.cropSet)
+                }
+                .buttonStyle(.borderedProminent)
             }
 
             if let error {

@@ -1,6 +1,7 @@
 import SwiftUI
 
-/// Каталог сцен, сгруппированный по тарифам. Первый экран после онбординга.
+/// Сцены выбранной подборки, сгруппированные по тарифам: видно, что даёт
+/// каждый пакет ещё до оплаты.
 struct CatalogView: View {
     @Binding var path: [Route]
     @EnvironmentObject private var state: AppState
@@ -12,7 +13,8 @@ struct CatalogView: View {
     ]
 
     var body: some View {
-        ScreenScaffold(title: L("catalog_title"), subtitle: L("catalog_subtitle")) {
+        ScreenScaffold(title: state.industryTitle,
+                       subtitle: L("catalog_subtitle", state.styles.count)) {
             if state.isLoading && state.styles.isEmpty {
                 ProgressView().frame(maxWidth: .infinity).padding(.vertical, 40)
             } else if let error = state.errorMessage, state.styles.isEmpty {

@@ -121,6 +121,15 @@ async def generate(
         raise HTTPException(404, f"Unknown scene_key: {scene_key}")
 
     purchase = _active_purchase(db, user)
+
+    # Сцена должна быть из списка, выбранного при оплате. Без этой проверки
+    # тариф ограничивал выбор только в приложении: запрос с чужим scene_key
+    # проходил, и базовый пакет дотягивался до премиальных сцен.
+    # Покупки без списка (старые записи) пропускаем как раньше.
+    allowed = purchase.scenes_selected or []
+    if allowed and scene_key not in allowed:
+        raise HTTPException(403, "scene_not_in_purchase")
+
     _check_rate(db, user)
 
     # Резервируем фото до обращения к генератору.

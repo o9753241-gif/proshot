@@ -64,3 +64,11 @@ class StyleOut(BaseModel):
     title: str
     preview_url: str
     tier: int
+
+
+class IndustryOut(BaseModel):
+    """Отраслевая подборка сцен: чем человек занимается, то ему и показываем."""
+    key: str
+    title: str
+    scene_count: int
+    preview_url: str

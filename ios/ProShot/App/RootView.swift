@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// Маршруты повторяют Routes.kt Android-версии, порядок тот же.
+/// Порядок прохода: отрасль → каталог → тариф → сцены → оплата →
+/// съёмка трёх кадров → результат → кадрировки.
 enum Route: Hashable {
-    case catalog, packages, scenes, summary, upload, result, gallery
+    case industry, catalog, packages, scenes, summary, capture, result, cropSet, gallery
 }
 
 struct RootView: View {
@@ -12,15 +13,17 @@ struct RootView: View {
 
     var body: some View {
         NavigationStack(path: $path) {
-            CatalogView(path: $path)
+            IndustryView(path: $path)
                 .navigationDestination(for: Route.self) { route in
                     switch route {
+                    case .industry: IndustryView(path: $path)
                     case .catalog:  CatalogView(path: $path)
                     case .packages: PackagesView(path: $path)
                     case .scenes:   ScenesView(path: $path)
                     case .summary:  SummaryView(path: $path)
-                    case .upload:   UploadView(path: $path)
+                    case .capture:  CaptureView(path: $path)
                     case .result:   ResultView(path: $path)
+                    case .cropSet:  CropSetView(path: $path)
                     case .gallery:  GalleryView()
                     }
                 }

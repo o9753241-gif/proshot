@@ -56,8 +56,16 @@ actor ProShotAPI {
         try await send(path: "/api/v1/packages", method: "GET")
     }
 
-    func styles(maxTier: Int) async throws -> [StyleDTO] {
-        try await send(path: "/api/v1/styles?max_tier=\(maxTier)", method: "GET")
+    func industries() async throws -> [IndustryDTO] {
+        try await send(path: "/api/v1/styles/industries", method: "GET")
+    }
+
+    func styles(maxTier: Int, industry: String? = nil) async throws -> [StyleDTO] {
+        var path = "/api/v1/styles?max_tier=\(maxTier)"
+        if let industry, !industry.isEmpty {
+            path += "&industry=\(industry)"
+        }
+        return try await send(path: path, method: "GET")
     }
 
     func purchases() async throws -> [PurchaseDTO] {

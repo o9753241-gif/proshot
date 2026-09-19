@@ -72,7 +72,7 @@ struct SummaryView: View {
         switch await purchases.purchase(product, scenes: state.selectedScenes) {
         case .success:
             paying = false
-            path.append(.upload)
+            path.append(.capture)
         case .cancelled:
             paying = false
         case .pending:
