@@ -25,8 +25,8 @@ from sqlalchemy.orm import Session
 
 from app.db import get_db
 from app.deps import get_current_user
-from app.models import GenerationEvent, Purchase, User
-from app.routers.styles import get_prompt
+from app.models import GenerationEvent, Package, Purchase, User
+from app.routers.styles import get_prompt, tier_for_pool, tier_of
 from app.services.prompts import build_headshot_prompt
 from app.services.dashscope import DashScopeError, edit_image_by_url
 
@@ -129,6 +129,16 @@ async def generate(
     allowed = purchase.scenes_selected or []
     if allowed and scene_key not in allowed:
         raise HTTPException(403, "scene_not_in_purchase")
+
+    # И тир сцены должен укладываться в оплаченный пакет. Проверка именно
+    # здесь, а не только в приложении: список сцен человек присылает сам
+    # при оплате, и без этой строки базовым пакетом можно было оплатить
+    # премиальные сцены.
+    scene_tier = tier_of(scene_key)
+    package = db.query(Package).filter(Package.id == purchase.package_id).first()
+    if scene_tier is not None and package is not None:
+        if scene_tier > tier_for_pool(package.scenes_pool):
+            raise HTTPException(403, "scene_above_tier")
 
     _check_rate(db, user)
 

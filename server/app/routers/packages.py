@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import Package
 from app.schemas import PackageOut
+from app.routers.styles import tier_for_pool
 from app.services.i18n import pick_lang, price_for, tr_package
 
 router = APIRouter()
@@ -62,6 +63,9 @@ def list_packages(
             sku=r.sku,
             title=tr_package(r.title, lang),
             scenes_pool=r.scenes_pool,
+            # Явная граница тира. Держать её в приложении нельзя: она зависит
+            # от состава каталога, а он живёт на сервере.
+            max_tier=tier_for_pool(r.scenes_pool),
             max_scenes=r.max_scenes,
             total_photos=r.total_photos,
             price_rub=r.price_rub,

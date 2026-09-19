@@ -510,6 +510,28 @@ _INDUSTRY_TITLES: dict[str, dict[str, str]] = {
 }
 
 
+def tier_for_pool(scenes_pool: int) -> int:
+    """Какой максимальный тир открывает пакет с таким размером пула.
+
+    Раньше приложение просто брало первые scenes_pool сцен каталога, и при
+    полном каталоге это в точности совпадало с границами тиров. Как только
+    каталог стал фильтроваться по отрасли, совпадение пропало: в подборке
+    из двенадцати сцен «первые четырнадцать» — это все двенадцать, включая
+    премиальные. Поэтому тир считается явно, а не через длину списка.
+    """
+    seen = 0
+    for tier in (1, 2, 3):
+        seen += sum(1 for s in _STYLES if s["tier"] == tier)
+        if scenes_pool <= seen:
+            return tier
+    return 3
+
+
+def tier_of(style_key: str) -> int | None:
+    style = next((s for s in _STYLES if s["key"] == style_key), None)
+    return style["tier"] if style else None
+
+
 def _industry_title(key: str, ru_title: str, lang: str) -> str:
     if lang == "ru":
         return ru_title

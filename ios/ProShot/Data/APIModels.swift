@@ -14,6 +14,9 @@ struct PackageDTO: Decodable, Identifiable, Hashable {
     let title: String
     /// Сколько сцен доступно в каталоге для этого пакета.
     let scenesPool: Int
+    /// Самый высокий тир сцен, открытый этим пакетом. Считает сервер: граница
+    /// зависит от состава каталога, а он там и живёт.
+    let maxTier: Int
     /// Верхняя граница выбора. Сервер вернёт 400, если прислать больше.
     let maxScenes: Int
     let totalPhotos: Int

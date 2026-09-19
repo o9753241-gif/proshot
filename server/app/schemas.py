@@ -14,6 +14,7 @@ class PackageOut(BaseModel):
     sku: str
     title: str
     scenes_pool: int
+    max_tier: int           # самый высокий тир сцен, открытый этим пакетом
     max_scenes: int
     total_photos: int
     price_rub: int          # исходная цена в рублях (аналитика)
