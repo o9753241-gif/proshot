@@ -7,11 +7,11 @@
 "onb_1_title" = "Professionelle Headshots\nfür LinkedIn";
 "onb_1_body" = "Studio-Qualität in 10 Minuten — ohne Fotograf, ohne Photoshop.";
 "onb_2_title" = "Szenen passend zu Ihrem Beruf";
-"onb_2_body" = "Auswahl für Tech, Finanzen, Vertrieb, Kreative, Wissenschaft und Führung. Sie wählen die Szenen — die Fotos verteilen sich darauf.";
+"onb_2_body" = "Auswahlen für Tech, Finanzen, Vertrieb, Kreative, Wissenschaft und Führung holen passende Szenen nach oben. Der Katalog selbst ist in jedem Paket vollständig offen.";
 "onb_3_title" = "Drei Aufnahmen — Dutzende Headshots";
 "onb_3_body" = "Nehmen Sie drei Perspektiven direkt in der App auf: Licht, Schärfe und Kopfhaltung werden vor dem Auslösen geprüft. Mit Größe und Gewicht trifft das Modell die Proportionen genauer.";
 "catalog_title" = "Verfügbare Szenen";
-"catalog_subtitle" = "%d Szenen in dieser Auswahl, nach Stufen gruppiert: Basis in jedem Paket, Premium nur im größten.";
+"catalog_subtitle" = "%d Szenen im Katalog, und jedes Paket öffnet alle. Das Paket bestimmt, wie viele Fotos Sie bekommen und wie viele Szenen Sie pro Bestellung wählen.";
 "catalog_continue" = "Tarif wählen";
 "tier_basic" = "Basic";
 "tier_standard" = "Standard";
@@ -22,7 +22,7 @@
 "tier_count_first" = "%d Szenen";
 "tier_count_more" = "+%d Szenen";
 "packages_title" = "Tarif wählen";
-"packages_subtitle" = "Sie zahlen erst nach der Bestellübersicht. Fotos werden auf Ihre Szenen verteilt — weniger Szenen bedeutet mehr Varianten pro Szene.";
+"packages_subtitle" = "Jedes Paket öffnet alle Szenen. Der Unterschied liegt in der Fotoanzahl und darin, wie viele Szenen Sie auf einmal nehmen: weniger Szenen, mehr Varianten je Szene. Bezahlt wird erst nach der Vorschau.";
 "packages_back_catalog" = "Zurück zum Katalog";
 "pkg_hit" = "BELIEBT";
 "pkg_photos" = "%d Fotos";
@@ -151,4 +151,9 @@
 "industry_subtitle" = "Eine Szenenauswahl passend zu Ihrer Arbeit. Nichts ist endgültig — jederzeit änderbar.";
 "industry_scenes" = "%d Szenen";
 "industry_all" = "Alle Szenen";
-"industry_hint" = "Die Stufen gelten weiterhin: Basis-Szenen in jedem Paket, Premium-Szenen nur in Premium.";
+"industry_hint" = "Die Auswahl verbirgt nichts: Alle Szenen sind in jedem Paket verfügbar — der Beruf holt die passenden nur nach oben.";
+"catalog_recommended" = "Für Ihren Beruf";
+"catalog_recommended_note" = "Die in Ihrem Bereich am häufigsten gewählten Szenen. Sie können beliebige nehmen — der Katalog ist vollständig offen.";
+"catalog_other" = "Übrige Szenen";
+"catalog_all" = "Alle Szenen";
+"catalog_count" = "%d";

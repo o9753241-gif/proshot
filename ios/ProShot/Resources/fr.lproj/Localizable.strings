@@ -7,11 +7,11 @@
 "onb_1_title" = "Portraits professionnels\npour LinkedIn";
 "onb_1_body" = "Qualité studio en 10 minutes — sans photographe, sans Photoshop.";
 "onb_2_title" = "Des scènes adaptées à votre métier";
-"onb_2_body" = "Des sélections pour la tech, la finance, la vente, la création, la science et la direction. Vous choisissez les scènes, les photos s'y répartissent.";
+"onb_2_body" = "Les sélections pour la tech, la finance, la vente, la création, la science et la direction remontent les scènes pertinentes. Le catalogue lui-même est entièrement ouvert dans chaque pack.";
 "onb_3_title" = "Trois prises — des dizaines de portraits";
 "onb_3_body" = "Prenez trois angles directement dans l'application : lumière, netteté et position du visage sont vérifiées avant le déclenchement. Avec votre taille et votre poids, le modèle affine les proportions.";
 "catalog_title" = "Scènes disponibles";
-"catalog_subtitle" = "%d scènes dans cette sélection, groupées par niveau : les scènes de base dans tous les packs, les premium dans le plus complet.";
+"catalog_subtitle" = "%d scènes au catalogue, toutes ouvertes dans chaque pack. Le pack détermine le nombre de photos et le nombre de scènes par commande.";
 "catalog_continue" = "Choisir une formule";
 "tier_basic" = "Basique";
 "tier_standard" = "Standard";
@@ -22,7 +22,7 @@
 "tier_count_first" = "%d scènes";
 "tier_count_more" = "+%d scènes";
 "packages_title" = "Choisir une formule";
-"packages_subtitle" = "Vous ne payez qu'après l'aperçu de commande. Les photos sont réparties entre vos scènes — moins de scènes signifie plus de variantes dans chacune.";
+"packages_subtitle" = "Chaque pack ouvre toutes les scènes. La différence : le nombre de photos et le nombre de scènes prises d'un coup — moins de scènes, plus de variantes dans chacune. Le paiement vient après l'aperçu.";
 "packages_back_catalog" = "Retour au catalogue";
 "pkg_hit" = "POPULAIRE";
 "pkg_photos" = "%d photos";
@@ -151,4 +151,9 @@
 "industry_subtitle" = "Une sélection de scènes adaptée à votre métier. Rien n'est figé — modifiable à tout moment.";
 "industry_scenes" = "%d scènes";
 "industry_all" = "Toutes les scènes";
-"industry_hint" = "Les niveaux restent : les scènes de base sont dans tous les packs, les premium seulement en Premium.";
+"industry_hint" = "La sélection ne masque rien : toutes les scènes sont disponibles dans chaque pack, le métier remonte simplement les plus pertinentes.";
+"catalog_recommended" = "Pour votre métier";
+"catalog_recommended_note" = "Les scènes les plus choisies dans votre domaine. Vous pouvez prendre n'importe laquelle — le catalogue est entièrement ouvert.";
+"catalog_other" = "Les autres scènes";
+"catalog_all" = "Toutes les scènes";
+"catalog_count" = "%d";

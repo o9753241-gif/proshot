@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Выбор сцен в рамках купленного тарифа: не больше max_scenes.
+/// Выбор сцен: не больше max_scenes. Сцены подборки идут первыми.
 /// Сервер проверяет это же число и вернёт 400, если прислать больше.
 struct ScenesView: View {
     @Binding var path: [Route]
@@ -9,7 +9,7 @@ struct ScenesView: View {
     var body: some View {
         ScreenScaffold(title: L("scenes_title"), subtitle: subtitle) {
             if let pkg = state.selectedPackage {
-                SceneGrid(scenes: state.availableScenes,
+                SceneGrid(scenes: state.orderedScenes,
                           selected: Set(state.selectedScenes)) { key in
                     state.toggleScene(key)
                 }

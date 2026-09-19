@@ -7,11 +7,11 @@
 "onb_1_title" = "Professional headshots\nfor LinkedIn";
 "onb_1_body" = "Studio-quality headshots in 10 minutes — no photographer, no Photoshop.";
 "onb_2_title" = "Scenes that match your job";
-"onb_2_body" = "Sets for tech, finance, sales, creative, science and leadership. You choose the scenes — the photos are split between them.";
+"onb_2_body" = "Sets for tech, finance, sales, creative, science and leadership bring the fitting scenes to the top. The catalogue itself is fully open with any package.";
 "onb_3_title" = "Three shots — dozens of headshots";
 "onb_3_body" = "Take three angles right in the app: it checks light, sharpness and head position before you shoot. Add your height and weight and the model matches your proportions more closely.";
 "catalog_title" = "What scenes are available";
-"catalog_subtitle" = "%d scenes in this set, grouped by tier: basic ones come with every package, premium ones only with the top one.";
+"catalog_subtitle" = "%d scenes in the catalogue, and every package opens all of them. The package decides how many photos you get and how many scenes you take in one order.";
 "catalog_continue" = "Choose plan";
 "tier_basic" = "Basic";
 "tier_standard" = "Standard";
@@ -22,7 +22,7 @@
 "tier_count_first" = "%d scenes";
 "tier_count_more" = "+%d scenes";
 "packages_title" = "Choose a plan";
-"packages_subtitle" = "You pay only after the order preview. Photos are distributed across your scenes — fewer scenes means more variations in each.";
+"packages_subtitle" = "Every package opens all the scenes. The difference is how many photos you get and how many scenes you take at once: fewer scenes means more variants in each. You pay only after the order preview.";
 "packages_back_catalog" = "Back to catalog";
 "pkg_hit" = "POPULAR";
 "pkg_photos" = "%d photos";
@@ -151,4 +151,9 @@
 "industry_subtitle" = "A set of scenes that fits your work. Nothing is locked in — you can change it any time.";
 "industry_scenes" = "%d scenes";
 "industry_all" = "All scenes";
-"industry_hint" = "Tiers still apply: basic scenes come with every package, premium ones only with Premium.";
+"industry_hint" = "The set hides nothing: every scene in the catalogue is available with any package — your line of work just brings the fitting ones to the top.";
+"catalog_recommended" = "For your line of work";
+"catalog_recommended_note" = "The scenes most often picked in your field. You can choose any of them — the whole catalogue is open.";
+"catalog_other" = "The rest of the catalogue";
+"catalog_all" = "All scenes";
+"catalog_count" = "%d";

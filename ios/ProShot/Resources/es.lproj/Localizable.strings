@@ -7,11 +7,11 @@
 "onb_1_title" = "Fotos profesionales\npara LinkedIn";
 "onb_1_body" = "Calidad de estudio en 10 minutos — sin fotógrafo, sin Photoshop.";
 "onb_2_title" = "Escenas para tu profesión";
-"onb_2_body" = "Selecciones para tecnología, finanzas, ventas, creatividad, ciencia y dirección. Tú eliges las escenas y las fotos se reparten entre ellas.";
+"onb_2_body" = "Las selecciones para tecnología, finanzas, ventas, creatividad, ciencia y dirección suben las escenas adecuadas. El catálogo en sí está abierto entero en cualquier paquete.";
 "onb_3_title" = "Tres tomas: decenas de retratos";
 "onb_3_body" = "Haz tres ángulos en la propia app: comprueba luz, nitidez y posición de la cara antes de disparar. Si añades altura y peso, el modelo ajusta mejor las proporciones.";
 "catalog_title" = "Escenas disponibles";
-"catalog_subtitle" = "%d escenas en la selección, agrupadas por nivel: las básicas vienen en todos los paquetes; las premium, solo en el mayor.";
+"catalog_subtitle" = "%d escenas en el catálogo, y todas están abiertas en cualquier paquete. El paquete decide cuántas fotos recibes y cuántas escenas tomas en un pedido.";
 "catalog_continue" = "Elegir plan";
 "tier_basic" = "Básico";
 "tier_standard" = "Estándar";
@@ -22,7 +22,7 @@
 "tier_count_first" = "%d escenas";
 "tier_count_more" = "+%d escenas";
 "packages_title" = "Elegir un plan";
-"packages_subtitle" = "Pagas solo tras la vista previa del pedido. Las fotos se reparten entre tus escenas — menos escenas significa más variantes en cada una.";
+"packages_subtitle" = "Todos los paquetes abren todas las escenas. La diferencia está en cuántas fotos recibes y cuántas escenas tomas a la vez: menos escenas, más variantes en cada una. Pagas solo tras la vista previa.";
 "packages_back_catalog" = "Volver al catálogo";
 "pkg_hit" = "POPULAR";
 "pkg_photos" = "%d fotos";
@@ -151,4 +151,9 @@
 "industry_subtitle" = "Una selección de escenas para tu trabajo. Nada queda fijo: puedes cambiarla cuando quieras.";
 "industry_scenes" = "%d escenas";
 "industry_all" = "Todas las escenas";
-"industry_hint" = "Los niveles siguen aplicando: las escenas básicas vienen en todos los paquetes; las premium, solo en Premium.";
+"industry_hint" = "La selección no oculta nada: todas las escenas están disponibles en cualquier paquete; la profesión solo sube las que encajan.";
+"catalog_recommended" = "Para tu profesión";
+"catalog_recommended_note" = "Las escenas que más se eligen en tu área. Puedes tomar cualquiera: el catálogo está abierto entero.";
+"catalog_other" = "El resto de las escenas";
+"catalog_all" = "Todas las escenas";
+"catalog_count" = "%d";

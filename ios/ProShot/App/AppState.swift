@@ -63,19 +63,12 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// Переключение подборки. Сцены перезапрашиваются с сервера: фильтрация
-    /// живёт там, и состав подборки можно поправить без новой версии приложения.
-    func selectIndustry(_ key: String?) async {
+    /// Выбор подборки. Каталог при этом не урезается: подборка лишь поднимает
+    /// уместные сцены наверх. Прятать половину витрины за выбором профессии —
+    /// значит показывать двенадцать карточек вместо полусотни.
+    func selectIndustry(_ key: String?) {
         industry = key
         selectedScenes = []
-        isLoading = true
-        defer { isLoading = false }
-        do {
-            styles = try await ProShotAPI.shared.styles(maxTier: 3, industry: key)
-            errorMessage = nil
-        } catch {
-            errorMessage = (error as? APIError)?.errorDescription ?? L("error_network")
-        }
     }
 
     /// Название выбранной подборки для подзаголовков.
@@ -88,14 +81,37 @@ final class AppState: ObservableObject {
 
     /// Сцены, доступные выбранному тарифу.
     ///
-    /// Отбор идёт по тиру, а не по числу первых сцен списка. Счёт работал,
-    /// пока каталог показывался целиком: 14 первых сцен ровно совпадали
-    /// с базовым тиром. В отраслевой подборке из двенадцати сцен «первые
-    /// четырнадцать» — это все двенадцать, включая премиальные, и базовый
-    /// пакет дотягивался до них.
+    /// Сейчас каталог открыт целиком в любом пакете, и max_tier у всех троих
+    /// равен трём. Отбор оставлен: граница живёт на сервере, и если тиры
+    /// когда-нибудь вернут, приложение подхватит это без новой версии.
     var availableScenes: [StyleDTO] {
         guard let pkg = selectedPackage else { return styles }
         return styles.filter { $0.tier <= pkg.maxTier }
+    }
+
+    /// Ключи сцен выбранной подборки.
+    private var industryKeys: [String] {
+        guard let industry else { return [] }
+        return industries.first { $0.key == industry }?.sceneKeys ?? []
+    }
+
+    /// Сцены подборки — те, что уместны в работе человека.
+    func recommended(from scenes: [StyleDTO]) -> [StyleDTO] {
+        let keys = Set(industryKeys)
+        guard !keys.isEmpty else { return [] }
+        return scenes.filter { keys.contains($0.key) }
+    }
+
+    /// Всё остальное из каталога. Ничего не скрыто, просто ниже.
+    func others(from scenes: [StyleDTO]) -> [StyleDTO] {
+        let keys = Set(industryKeys)
+        guard !keys.isEmpty else { return scenes }
+        return scenes.filter { !keys.contains($0.key) }
+    }
+
+    /// Порядок для экранов, где список один: сначала подборка, потом остальные.
+    var orderedScenes: [StyleDTO] {
+        recommended(from: availableScenes) + others(from: availableScenes)
     }
 
     var capturedCount: Int {

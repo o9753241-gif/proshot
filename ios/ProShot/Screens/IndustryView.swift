@@ -23,19 +23,15 @@ struct IndustryView: View {
                         IndustryCard(title: industry.title,
                                      note: L("industry_scenes", industry.sceneCount),
                                      previewUrl: industry.previewUrl) {
-                            Task {
-                                await state.selectIndustry(industry.key)
-                                path.append(.catalog)
-                            }
+                            state.selectIndustry(industry.key)
+                            path.append(.catalog)
                         }
                     }
                 }
 
                 Button {
-                    Task {
-                        await state.selectIndustry(nil)
-                        path.append(.catalog)
-                    }
+                    state.selectIndustry(nil)
+                    path.append(.catalog)
                 } label: {
                     HStack {
                         Text(L("industry_all")).font(.inter(16, .semibold))

@@ -36,6 +36,8 @@ struct IndustryDTO: Decodable, Identifiable, Hashable {
     let key: String
     let title: String
     let sceneCount: Int
+    /// Ключи сцен подборки в порядке каталога.
+    let sceneKeys: [String]
     let previewUrl: String
 
     var id: String { key }

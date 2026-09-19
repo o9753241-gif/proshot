@@ -72,4 +72,5 @@ class IndustryOut(BaseModel):
     key: str
     title: str
     scene_count: int
+    scene_keys: list[str]
     preview_url: str

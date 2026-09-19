@@ -1,16 +1,10 @@
 import SwiftUI
 
-/// Сцены выбранной подборки, сгруппированные по тарифам: видно, что даёт
-/// каждый пакет ещё до оплаты.
+/// Каталог целиком. Сначала сцены выбранной профессии, следом остальные —
+/// ничего не спрятано, подборка только меняет порядок.
 struct CatalogView: View {
     @Binding var path: [Route]
     @EnvironmentObject private var state: AppState
-
-    private let tiers: [(tier: Int, name: String, note: String)] = [
-        (1, L("tier_basic"),    L("tier_desc_basic")),
-        (2, L("tier_standard"), L("tier_desc_standard")),
-        (3, L("tier_premium"),  L("tier_desc_premium")),
-    ]
 
     var body: some View {
         ScreenScaffold(title: state.industryTitle,
@@ -20,24 +14,18 @@ struct CatalogView: View {
             } else if let error = state.errorMessage, state.styles.isEmpty {
                 ErrorBlock(message: error) { Task { await state.bootstrap() } }
             } else {
-                ForEach(tiers, id: \.tier) { tier in
-                    let scenes = state.styles.filter { $0.tier == tier.tier }
-                    if !scenes.isEmpty {
-                        VStack(alignment: .leading, spacing: 10) {
-                            HStack(alignment: .firstTextBaseline) {
-                                Text(tier.name).font(.inter(20, .semibold))
-                                Spacer()
-                                Text(tier.tier == 1
-                                     ? L("tier_count_first", scenes.count)
-                                     : L("tier_count_more", scenes.count))
-                                    .font(.inter(12))
-                                    .foregroundStyle(.secondary)
-                            }
-                            Text(tier.note).font(.inter(12)).foregroundStyle(.secondary)
-                            SceneGrid(scenes: scenes)
-                        }
-                        .padding(.top, 8)
-                    }
+                let recommended = state.recommended(from: state.styles)
+                let others = state.others(from: state.styles)
+
+                if !recommended.isEmpty {
+                    SceneSection(title: L("catalog_recommended"),
+                                 note: L("catalog_recommended_note"),
+                                 scenes: recommended)
+                }
+                if !others.isEmpty {
+                    SceneSection(title: recommended.isEmpty ? L("catalog_all") : L("catalog_other"),
+                                 note: nil,
+                                 scenes: others)
                 }
             }
         } bottom: {
@@ -46,6 +34,33 @@ struct CatalogView: View {
                 path.append(.packages)
             }
         }
+    }
+}
+
+/// Озаглавленный кусок каталога.
+private struct SceneSection: View {
+    let title: String
+    let note: String?
+    let scenes: [StyleDTO]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(title).font(.inter(20, .semibold))
+                Spacer()
+                Text(L("catalog_count", scenes.count))
+                    .font(.inter(12))
+                    .foregroundStyle(.secondary)
+            }
+            if let note {
+                Text(note)
+                    .font(.inter(12))
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            SceneGrid(scenes: scenes)
+        }
+        .padding(.top, 8)
     }
 }
 

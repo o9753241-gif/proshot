@@ -603,6 +603,10 @@ def list_industries(
             key=industry["key"],
             title=_industry_title(industry["key"], industry["title"], lang),
             scene_count=len(keys),
+            # Ключи отдаём целиком: приложение уже держит весь каталог и
+            # раскладывает его на «для вашей профессии» и «остальные» само,
+            # без второго запроса к серверу.
+            scene_keys=keys,
             preview_url=_to_public(cover, lang).preview_url if cover else "",
         ))
     return out

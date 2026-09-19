@@ -9,9 +9,16 @@ from app.services.i18n import pick_lang, price_for, tr_package
 
 router = APIRouter()
 
+# Каталог открыт целиком в любом пакете: scenes_pool у всех трёх — весь
+# каталог. Пакет решает не «какие сцены видно», а сколько фото человек
+# получит и сколько сцен сможет взять за один заказ.
+#
+# Так было не всегда: раньше дешёвый пакет показывал только базовый тир.
+# От этого отказались — витрина из двенадцати сцен выглядит бедно, а
+# настоящая разница между пакетами и так в количестве фото.
 DEFAULT_PACKAGES = [
-    dict(sku="pack_basic",    title="Базовый",  scenes_pool=14, max_scenes=3, total_photos=20,  price_rub=990),
-    dict(sku="pack_standard", title="Стандарт", scenes_pool=29, max_scenes=5, total_photos=50,  price_rub=1890),
+    dict(sku="pack_basic",    title="Базовый",  scenes_pool=47, max_scenes=3, total_photos=20,  price_rub=990),
+    dict(sku="pack_standard", title="Стандарт", scenes_pool=47, max_scenes=5, total_photos=50,  price_rub=1890),
     dict(sku="pack_premium",  title="Премиум",  scenes_pool=47, max_scenes=8, total_photos=120, price_rub=2990),
 ]
 

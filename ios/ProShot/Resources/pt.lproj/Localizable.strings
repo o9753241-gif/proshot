@@ -7,11 +7,11 @@
 "onb_1_title" = "Retratos profissionais\npara o LinkedIn";
 "onb_1_body" = "Qualidade de estúdio em 10 minutos — sem fotógrafo, sem Photoshop.";
 "onb_2_title" = "Cenas para a sua profissão";
-"onb_2_body" = "Seleções para tecnologia, finanças, vendas, criação, ciência e direção. Você escolhe as cenas e as fotos se distribuem entre elas.";
+"onb_2_body" = "As seleções para tecnologia, finanças, vendas, criação, ciência e direção trazem as cenas adequadas para cima. O catálogo em si fica todo aberto em qualquer pacote.";
 "onb_3_title" = "Três fotos — dezenas de retratos";
 "onb_3_body" = "Faça três ângulos no próprio app: luz, nitidez e posição do rosto são verificadas antes do disparo. Com altura e peso, o modelo acerta melhor as proporções.";
 "catalog_title" = "Cenas disponíveis";
-"catalog_subtitle" = "%d cenas nesta seleção, agrupadas por nível: as básicas vêm em todos os pacotes; as premium, só no maior.";
+"catalog_subtitle" = "%d cenas no catálogo, e todas ficam abertas em qualquer pacote. O pacote define quantas fotos você recebe e quantas cenas leva por pedido.";
 "catalog_continue" = "Escolher plano";
 "tier_basic" = "Básico";
 "tier_standard" = "Padrão";
@@ -22,7 +22,7 @@
 "tier_count_first" = "%d cenas";
 "tier_count_more" = "+%d cenas";
 "packages_title" = "Escolher um plano";
-"packages_subtitle" = "Você paga apenas após a prévia do pedido. As fotos são distribuídas entre suas cenas — menos cenas significa mais variantes em cada.";
+"packages_subtitle" = "Todos os pacotes abrem todas as cenas. A diferença é quantas fotos você recebe e quantas cenas leva de uma vez: menos cenas, mais variantes em cada. O pagamento vem só depois da prévia.";
 "packages_back_catalog" = "Voltar ao catálogo";
 "pkg_hit" = "POPULAR";
 "pkg_photos" = "%d fotos";
@@ -151,4 +151,9 @@
 "industry_subtitle" = "Uma seleção de cenas para o seu trabalho. Nada fica fixo — dá para mudar a qualquer momento.";
 "industry_scenes" = "%d cenas";
 "industry_all" = "Todas as cenas";
-"industry_hint" = "Os níveis continuam valendo: cenas básicas em qualquer pacote, premium só no Premium.";
+"industry_hint" = "A seleção não esconde nada: todas as cenas estão disponíveis em qualquer pacote; a profissão apenas traz as adequadas para cima.";
+"catalog_recommended" = "Para a sua profissão";
+"catalog_recommended_note" = "As cenas mais escolhidas na sua área. Você pode pegar qualquer uma — o catálogo está todo aberto.";
+"catalog_other" = "As demais cenas";
+"catalog_all" = "Todas as cenas";
+"catalog_count" = "%d";
