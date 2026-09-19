@@ -25,7 +25,7 @@ struct SummaryView: View {
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .background(.background.secondary, in: RoundedRectangle(cornerRadius: 14))
+                .background(Palette.fill, in: RoundedRectangle(cornerRadius: 14))
 
                 SceneGrid(scenes: state.selectedScenes.compactMap(state.scene(for:)))
 

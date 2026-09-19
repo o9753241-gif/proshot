@@ -76,6 +76,9 @@ enum Palette {
     static let surface = Color.white
     /// BrandMuted #6B7280 — второстепенный текст.
     static let muted = Color(red: 0x6B / 255, green: 0x72 / 255, blue: 0x80 / 255)
+    /// Заливка плейсхолдеров (#ECEEF5). Замена .background.secondary,
+    /// которая доступна только с iOS 17.
+    static let fill = Color(red: 0xEC / 255, green: 0xEE / 255, blue: 0xF5 / 255)
 }
 
 // ── Шрифт ────────────────────────────────────────────────────────────

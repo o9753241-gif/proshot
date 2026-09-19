@@ -16,7 +16,7 @@ struct UploadView: View {
             } label: {
                 ZStack {
                     RoundedRectangle(cornerRadius: 14)
-                        .fill(.background.secondary)
+                        .fill(Palette.fill)
                         .aspectRatio(1, contentMode: .fit)
                     if let data = state.photoData, let image = UIImage(data: data) {
                         Image(uiImage: image)

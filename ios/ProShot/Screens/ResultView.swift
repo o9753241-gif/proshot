@@ -19,7 +19,7 @@ struct ResultView: View {
         ScreenScaffold(title: title, subtitle: subtitle) {
             ZStack {
                 RoundedRectangle(cornerRadius: 14)
-                    .fill(.background.secondary)
+                    .fill(Palette.fill)
                     .aspectRatio(1, contentMode: .fit)
 
                 if generating {

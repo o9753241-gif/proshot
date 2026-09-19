@@ -60,7 +60,7 @@ private struct PackageRow: View {
             }
         }
         .padding(16)
-        .background(.background.secondary, in: RoundedRectangle(cornerRadius: 14))
+        .background(Palette.fill, in: RoundedRectangle(cornerRadius: 14))
         .overlay {
             RoundedRectangle(cornerRadius: 14)
                 .strokeBorder(isHit ? Color.accentColor : .clear, lineWidth: 2)
