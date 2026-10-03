@@ -17,6 +17,7 @@ definitions:
       XCODE_PROJECT: "ios/ProShot.xcodeproj"
       XCODE_SCHEME: "ProShot"
       BUNDLE_ID: "ai.proshot.app"
+      APP_STORE_APPLE_ID: "6818748505"
     xcode: latest
 
   generate_project: &generate_project
@@ -158,9 +159,8 @@ workflows:
           xcode-project use-profiles
       - name: Номер сборки — следующий за тем, что уже в TestFlight
         script: |
-          # APP_STORE_APPLE_ID появится, когда приложение заведут в App Store
-          # Connect; до тех пор считаем от нуля. Пустую переменную Codemagic
-          # в vars не принимает вовсе, поэтому её там просто нет.
+          # APP_STORE_APPLE_ID задан в base_env; если TestFlight ещё пуст,
+          # команда вернёт ошибку и счёт начнётся с нуля.
           BUILD_NUMBER=$(app-store-connect get-latest-testflight-build-number "${APP_STORE_APPLE_ID:-0}" --platform IOS 2>/dev/null || echo 0)
           echo "Следующий номер: $((BUILD_NUMBER + 1))"
           cd ios && agvtool new-version -all $((BUILD_NUMBER + 1))
