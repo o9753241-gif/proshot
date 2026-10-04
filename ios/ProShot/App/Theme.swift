@@ -76,9 +76,33 @@ enum Palette {
     static let surface = Color.white
     /// BrandMuted #6B7280 — второстепенный текст.
     static let muted = Color(red: 0x6B / 255, green: 0x72 / 255, blue: 0x80 / 255)
-    /// Заливка плейсхолдеров (#ECEEF5). Замена .background.secondary,
-    /// которая доступна только с iOS 17.
-    static let fill = Color(red: 0xEC / 255, green: 0xEE / 255, blue: 0xF5 / 255)
+    /// Заливка карточек и плейсхолдеров. Замена .background.secondary,
+    /// которая доступна только с iOS 17. Цвет зависит от темы, как в Android
+    /// (Theme.kt): светлая #ECEEF5, тёмная DarkSurface #141826. Постоянный
+    /// светлый цвет в тёмной теме давал белый текст на светлой карточке.
+    static let fill = Color(UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0x14 / 255, green: 0x18 / 255, blue: 0x26 / 255, alpha: 1)
+            : UIColor(red: 0xEC / 255, green: 0xEE / 255, blue: 0xF5 / 255, alpha: 1)
+    })
+}
+
+// ── Картинка в рамке заданных пропорций ─────────────────────────────
+//
+// .aspectRatio(_, contentMode: .fill) прямо на картинке растягивает её по
+// собственным пропорциям снимка, и ячейки сетки получаются разной ширины
+// и высоты. Здесь рамка задаётся пустым видом нужных пропорций, а картинка
+// заполняет её поверх и обрезается по краям.
+extension View {
+    func croppedTo(aspect: CGFloat) -> some View {
+        Color.clear
+            .aspectRatio(aspect, contentMode: .fit)
+            .overlay { self.aspectRatio(contentMode: .fill) }
+            .clipped()
+            // clipped() режет только отрисовку; без этого обрезанная часть
+            // картинки ловила бы нажатия, предназначенные соседней ячейке.
+            .contentShape(Rectangle())
+    }
 }
 
 // ── Шрифт ────────────────────────────────────────────────────────────

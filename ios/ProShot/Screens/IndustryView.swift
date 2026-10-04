@@ -67,9 +67,8 @@ private struct IndustryCard: View {
                 CachedImage(url: URL(string: previewUrl)) {
                     Rectangle().fill(.quaternary)
                 }
-                .aspectRatio(4.0 / 3.0, contentMode: .fill)
+                .croppedTo(aspect: 4.0 / 3.0)
                 .frame(maxWidth: .infinity)
-                .clipped()
 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(title)

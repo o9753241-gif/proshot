@@ -80,8 +80,7 @@ struct SceneGrid: View {
                         CachedImage(url: URL(string: scene.previewUrl)) {
                             Rectangle().fill(.quaternary)
                         }
-                        .aspectRatio(1, contentMode: .fill)
-                        .clipped()
+                        .croppedTo(aspect: 1)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .overlay {
                             RoundedRectangle(cornerRadius: 10)

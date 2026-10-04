@@ -25,8 +25,7 @@ struct GalleryView: View {
                         CachedImage(url: url) {
                             Rectangle().fill(.quaternary)
                         }
-                        .aspectRatio(1, contentMode: .fill)
-                        .clipped()
+                        .croppedTo(aspect: 1)
                         .clipShape(RoundedRectangle(cornerRadius: 10))
                         .contextMenu {
                             Button(L("action_save")) {
