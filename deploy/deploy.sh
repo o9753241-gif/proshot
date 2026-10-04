@@ -123,7 +123,14 @@ caddy validate --config /etc/caddy/Caddyfile >/dev/null 2>&1 && systemctl reload
   || { echo "CADDY CONFIG INVALID - removing our file"; rm -f /etc/caddy/conf.d/$UNIT.caddy; }
 
 echo "=== 10. check ==="
-H=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/health")
+# Up to 30 s: four workers need a few seconds to start. "|| true" keeps
+# set -e from killing the script silently while the port is not open yet.
+H=000
+for i in $(seq 1 15); do
+    H=$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/health" || true)
+    [ "$H" = "200" ] && break
+    sleep 2
+done
 echo "local health: $H"
 if [ "$H" != "200" ] && [ -d "$APP_DIR/app.old" ]; then
     echo "ROLLBACK to previous code"
@@ -134,6 +141,6 @@ if [ "$H" != "200" ] && [ -d "$APP_DIR/app.old" ]; then
 fi
 [ "$H" != "200" ] && journalctl -u "$UNIT" -n 30 --no-pager
 sleep 3
-echo "public health: $(curl -s -o /dev/null -w '%{http_code}' https://$DOMAIN/health)"
+echo "public health: $(curl -s -o /dev/null -w '%{http_code}' https://$DOMAIN/health || true)"
 echo "styles: $(curl -s https://$DOMAIN/api/v1/styles | python3 -c 'import sys,json; d=json.load(sys.stdin); print(len(d), "scenes")' 2>&1 | tail -1)"
 echo "Android untouched: $(systemctl is-active proshot)"
