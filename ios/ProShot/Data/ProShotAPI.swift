@@ -21,8 +21,8 @@ enum APIError: LocalizedError {
     }
 }
 
-/// Клиент к FastAPI-бэкенду. Контракт тот же, что у Android-версии:
-/// заголовки `X-Device-Id` и `Accept-Language` идут с каждым запросом.
+/// Клиент к FastAPI-бэкенду. С каждым запросом идут `X-Device-Token`
+/// (если уже получен), `X-Device-Id` и `Accept-Language`.
 actor ProShotAPI {
     static let shared = ProShotAPI()
 
@@ -114,6 +114,37 @@ actor ProShotAPI {
         return try await perform(request)
     }
 
+    // MARK: - Токен устройства (App Attest)
+
+    private struct ChallengeOut: Decodable { let challenge: String }
+    private struct TokenOut: Decodable {
+        let token: String
+        /// Принял ли сервер заверение или выдал токен «на веру» (переходный режим).
+        let attested: Bool?
+    }
+
+    /// Одноразовый вызов для App Attest. Живёт на сервере пять минут.
+    func challenge() async throws -> String {
+        let out: ChallengeOut = try await send(path: "/api/v1/device/challenge", method: "GET")
+        return out.challenge
+    }
+
+    /// Токен устройства. С заверением — боевой путь; без него сервер выдаёт
+    /// токен только в переходном режиме, и это нужно для симулятора.
+    func deviceToken(
+        attestation: (keyId: String, attestation: Data, challenge: String)?
+    ) async throws -> (token: String, attested: Bool) {
+        var body = ["device_id": DeviceID.current]
+        if let attestation {
+            body["key_id"] = attestation.keyId
+            body["attestation"] = attestation.attestation.base64EncodedString()
+            body["challenge"] = attestation.challenge
+        }
+        let out: TokenOut = try await send(path: "/api/v1/device/token",
+                                           method: "POST", body: body)
+        return (out.token, out.attested ?? false)
+    }
+
     // MARK: - Внутреннее
 
     private func base(path: String, method: String) -> URLRequest {
@@ -123,6 +154,11 @@ actor ProShotAPI {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue(DeviceID.current, forHTTPHeaderField: "X-Device-Id")
+        // Подписанный токен устройства (см. AppAttest.swift). Сервер берёт
+        // личность из него; X-Device-Id остаётся для переходного режима.
+        if let token = DeviceToken.current {
+            request.setValue(token, forHTTPHeaderField: "X-Device-Token")
+        }
         request.setValue(Self.acceptLanguage, forHTTPHeaderField: "Accept-Language")
         return request
     }

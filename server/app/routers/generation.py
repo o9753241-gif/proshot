@@ -87,6 +87,12 @@ def _active_purchase(db: Session, user: User) -> Purchase:
     return purchase
 
 
+def _remaining(db: Session, purchase_id: int) -> int:
+    """Остаток прямо из базы: после атомарных UPDATE объект в сессии устарел."""
+    value = db.query(Purchase.photos_remaining).filter(Purchase.id == purchase_id).scalar()
+    return int(value or 0)
+
+
 def _check_rate(db: Session, user: User) -> None:
     """Единственное ограничение скорости: не больше MAX_PER_HOUR генераций в час.
 
@@ -142,8 +148,19 @@ async def generate(
 
     _check_rate(db, user)
 
-    # Резервируем фото до обращения к генератору.
-    purchase.photos_remaining -= 1
+    # Резервируем фото до обращения к генератору. Списание — один UPDATE с
+    # условием «остаток > 0», а не «прочитать, вычесть, записать»: сервис
+    # работает в четырёх процессах, и два параллельных запроса на последнее
+    # фото иначе оба видели бы остаток 1 и оба получали бы портрет.
+    taken = db.query(Purchase).filter(
+        Purchase.id == purchase.id,
+        Purchase.status == "paid",
+        Purchase.photos_remaining > 0,
+    ).update({Purchase.photos_remaining: Purchase.photos_remaining - 1},
+             synchronize_session=False)
+    if taken != 1:
+        db.rollback()
+        raise HTTPException(402, "no_photos_left")
     event = GenerationEvent(user_id=user.id, purchase_id=purchase.id, scene_key=scene_key)
     db.add(event)
     db.commit()
@@ -156,7 +173,13 @@ async def generate(
     out_path = MEDIA_DIR / out_name
 
     def _refund() -> None:
-        purchase.photos_remaining += 1
+        # Тоже атомарно. Если за это время пришёл возврат денег (status
+        # refunded, остаток 0), фото не возвращаем: пакет уже закрыт.
+        db.query(Purchase).filter(
+            Purchase.id == purchase.id,
+            Purchase.status == "paid",
+        ).update({Purchase.photos_remaining: Purchase.photos_remaining + 1},
+                 synchronize_session=False)
         db.delete(event)
         db.commit()
 
@@ -190,7 +213,7 @@ async def generate(
     return {
         "scene_key": scene_key,
         "image_url": f"{PUBLIC_BASE_URL}/api/v1/generation/media/{out_name}",
-        "photos_remaining": purchase.photos_remaining,
+        "photos_remaining": _remaining(db, purchase.id),
     }
 
 

@@ -16,6 +16,7 @@ DOMAIN=ios-proshot.myprojekts.online
 ANDROID_ENV=/srv/proshot/.env
 ANDROID_THUMBS=/srv/proshot/src/media/thumbs
 APPLE_ROOTS_SRC=/opt/star-app-ios/secrets/apple_roots
+STARSHOT_ENV=/opt/star-app-ios/.env
 SRC="$(cd "$(dirname "$0")/.." && pwd)"
 
 echo "=== 1. port $PORT ==="
@@ -76,7 +77,30 @@ PY
 else
     echo "DASHSCOPE_API_KEY already set (value hidden)"
 fi
-grep -E '^(PUBLIC_BASE_URL|APPLE_APP_APPLE_ID|APPLE_BUNDLE_ID|DATABASE_URL)=' "$APP_DIR/.env"
+# App Attest and device token. Added only if missing: values already in .env
+# (for example ATTEST_MODE=enforce set by hand) are never overwritten.
+ATTEST_CA="$APP_DIR/secrets/Apple_App_Attestation_Root_CA.pem"
+STAR_CA=$(grep -E '^APPLE_ATTEST_ROOT_CA=' "$STARSHOT_ENV" 2>/dev/null | tail -1 | cut -d= -f2-)
+mkdir -p "$APP_DIR/secrets"
+if [ ! -f "$ATTEST_CA" ] && [ -n "$STAR_CA" ] && [ -f "$STAR_CA" ]; then
+    cp "$STAR_CA" "$ATTEST_CA"
+fi
+[ -f "$ATTEST_CA" ] && echo "attest root CA: present" || echo "attest root CA: MISSING"
+add_if_missing() {
+    grep -qE "^$1=" "$APP_DIR/.env" || echo "$1=$2" >> "$APP_DIR/.env"
+}
+add_if_missing ATTEST_MODE observe
+add_if_missing APPLE_TEAM_ID 83FXJTKVDQ
+add_if_missing APPLE_ATTEST_ROOT_CA "$ATTEST_CA"
+add_if_missing DEVICE_TOKEN_GRACE 1
+if ! grep -qE '^DEVICE_TOKEN_SECRET=.+' "$APP_DIR/.env"; then
+    sed -i '/^DEVICE_TOKEN_SECRET=/d' "$APP_DIR/.env"
+    echo "DEVICE_TOKEN_SECRET=$(python3 -c 'import secrets; print(secrets.token_hex(32))')" >> "$APP_DIR/.env"
+    echo "DEVICE_TOKEN_SECRET generated (value hidden)"
+else
+    echo "DEVICE_TOKEN_SECRET already set (value hidden)"
+fi
+grep -E '^(PUBLIC_BASE_URL|APPLE_APP_APPLE_ID|APPLE_BUNDLE_ID|DATABASE_URL|ATTEST_MODE|APPLE_TEAM_ID|APPLE_ATTEST_ROOT_CA|DEVICE_TOKEN_GRACE)=' "$APP_DIR/.env"
 
 echo "=== 5. Apple root certificates ==="
 mkdir -p "$APP_DIR/secrets/apple_roots"
@@ -144,3 +168,5 @@ sleep 3
 echo "public health: $(curl -s -o /dev/null -w '%{http_code}' https://$DOMAIN/health || true)"
 echo "styles: $(curl -s https://$DOMAIN/api/v1/styles | python3 -c 'import sys,json; d=json.load(sys.stdin); print(len(d), "scenes")' 2>&1 | tail -1)"
 echo "Android untouched: $(systemctl is-active proshot)"
+echo "--- startup lines ---"
+journalctl -u "$UNIT" --since "-2 min" --no-pager | grep -E '\[CONFIG\]' | tail -4

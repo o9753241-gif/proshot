@@ -76,16 +76,23 @@ def verify(
         Purchase.provider_token == token,
     ).first() if token else None
     if existing:
+        if existing.user_id != user.id:
+            # Та же оплата, но с другого устройства. Начислено уже тому, кто
+            # купил; второй раз не начисляем и чужую покупку не показываем.
+            print(f"[PURCHASE] replay from other device tx={token[:12]} "
+                  f"owner={existing.user_id} caller={user.id}", flush=True)
+            raise HTTPException(status.HTTP_409_CONFLICT, "purchase_belongs_to_other_device")
         return _out(existing, pkg.sku)
 
     if not result.ok:
+        print(f"[PURCHASE] rejected sku={req.sku} reason={result.reason}", flush=True)
         raise HTTPException(status.HTTP_400_BAD_REQUEST, f"Purchase verify failed: {result.reason}")
 
     if req.provider == "app_store":
-        log.info(
-            "Покупка Apple принята: tx=%s product=%s env=%s",
-            result.order_id, result.product_id, result.environment,
-        )
+        # print, а не log.info: логгер приложения без настройки молчит ниже
+        # WARNING, и строки о покупках в журнал не попадали.
+        print(f"[PURCHASE] apple ok tx={result.order_id} product={result.product_id} "
+              f"env={result.environment} user={user.id}", flush=True)
 
     purchase = Purchase(
         user_id=user.id,
@@ -107,10 +114,14 @@ def verify(
             Purchase.provider == req.provider,
             Purchase.provider_token == token,
         ).first()
-        if existing:
+        if existing and existing.user_id == user.id:
             return _out(existing, pkg.sku)
+        if existing:
+            raise HTTPException(status.HTTP_409_CONFLICT, "purchase_belongs_to_other_device")
         raise
     db.refresh(purchase)
+    print(f"[PURCHASE] credited purchase={purchase.id} sku={pkg.sku} "
+          f"photos={purchase.photos_remaining} user={user.id}", flush=True)
 
     return _out(purchase, pkg.sku)
 
@@ -149,7 +160,7 @@ def apply_refund(db: Session, transaction_id: str) -> Purchase | None:
     purchase.status = "refunded"
     purchase.photos_remaining = 0
     db.commit()
-    log.warning("Возврат по покупке %s: остаток %s фото обнулён", purchase.id, was)
+    print(f"[NOTIFY] refund applied purchase={purchase.id} zeroed={was}", flush=True)
     return purchase
 
 
@@ -324,7 +335,7 @@ async def apple_notifications(request: Request, db: Session = Depends(get_db)):
         inner, _ = app_store.decode_transaction(signed_tx)
         transaction_id = getattr(inner, "transactionId", None) if inner else None
 
-    log.info("Уведомление Apple: %s tx=%s", kind, transaction_id)
+    print(f"[NOTIFY] {kind} tx={transaction_id}", flush=True)
 
     if transaction_id:
         if kind == "REFUND":

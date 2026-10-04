@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, Integer, DateTime, ForeignKey, JSON, UniqueConstraint
+from sqlalchemy import Boolean, String, Integer, DateTime, ForeignKey, JSON, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db import Base
@@ -10,6 +10,17 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     device_id: Mapped[str] = mapped_column(String(128), unique=True, index=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    # Токен устройства уже выдавался. Повторно — только заверённому (см. device.py).
+    token_issued: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    # Последний выданный токен получен по заверению App Attest.
+    attested: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+
+
+class AttestChallenge(Base):
+    """Одноразовый вызов для App Attest: живёт пять минут, тратится один раз."""
+    __tablename__ = "attest_challenges"
+    challenge: Mapped[str] = mapped_column(String(64), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, index=True)
 
 
 class Package(Base):
