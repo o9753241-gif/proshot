@@ -29,6 +29,9 @@
 "pkg_scenes_line" = "Bis zu %1$d Szenen aus %2$d";
 "pkg_price" = "%d €";
 "pkg_choose" = "Wählen →";
+"pkg_unit" = "Fotos";
+"pkg_per_photo" = "≈ %@ pro Foto";
+"pkg_best" = "BESTER PREIS";
 "scenes_title" = "Szenen auswählen";
 "scenes_subtitle" = "Tarif «%1$@» — bis zu %2$d Szenen. Ausgewählt %3$d. ≈ %4$d Fotos pro Szene (%5$d gesamt)";
 "scenes_subtitle_empty" = "Tarif «%1$@» — bis zu %2$d Szenen. Ausgewählt 0.";

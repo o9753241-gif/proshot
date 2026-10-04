@@ -29,6 +29,9 @@
 "pkg_scenes_line" = "Up to %1$d scenes to pick from %2$d";
 "pkg_price" = "$%d";
 "pkg_choose" = "Choose →";
+"pkg_unit" = "photos";
+"pkg_per_photo" = "≈ %@ per photo";
+"pkg_best" = "BEST VALUE";
 "scenes_title" = "Choose your scenes";
 "scenes_subtitle" = "Plan «%1$@» — up to %2$d scenes. Selected %3$d. ≈ %4$d photos per scene (%5$d total)";
 "scenes_subtitle_empty" = "Plan «%1$@» — up to %2$d scenes. Selected 0.";

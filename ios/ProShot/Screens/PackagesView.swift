@@ -19,7 +19,7 @@ struct PackagesView: View {
                     state.selectedScenes = []
                     path.append(.scenes)
                 } label: {
-                    PackageRow(pkg: pkg, price: price(for: pkg))
+                    PackageRow(pkg: pkg, product: product(for: pkg))
                 }
                 .buttonStyle(.plain)
             }
@@ -27,38 +27,57 @@ struct PackagesView: View {
         .task { await purchases.loadProducts() }
     }
 
-    private func price(for pkg: PackageDTO) -> String {
-        purchases.products.first { $0.id == pkg.sku }?.displayPrice ?? ""
+    private func product(for pkg: PackageDTO) -> Product? {
+        purchases.products.first { $0.id == pkg.sku }
     }
 }
 
 private struct PackageRow: View {
     let pkg: PackageDTO
-    let price: String
+    /// Товар StoreKit. Пока не загрузился — цены нет вовсе (см. выше).
+    let product: Product?
 
     /// «Стандарт» помечен как хит — так же, как в Android-версии.
     private var isHit: Bool { pkg.sku == "pack_standard" }
+    /// Самая низкая цена за фото — у самого большого пакета.
+    private var isBest: Bool { pkg.sku == "pack_premium" }
+
+    /// Цена за одно фото в валюте витрины. Больше 10 единиц — без копеек.
+    private var perPhoto: String? {
+        guard let product, pkg.totalPhotos > 0 else { return nil }
+        let value = product.price / Decimal(pkg.totalPhotos)
+        let style = product.priceFormatStyle.precision(.fractionLength(value >= 10 ? 0 : 2))
+        return L("pkg_per_photo", value.formatted(style))
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Text(pkg.title).font(.inter(20, .semibold))
-                if isHit {
-                    Text(L("pkg_hit"))
-                        .font(.inter(11, .medium))
-                        .padding(.horizontal, 8).padding(.vertical, 3)
-                        .background(Color.accentColor, in: Capsule())
-                        .foregroundStyle(.white)
-                }
-                Spacer()
-                Text(price).font(.inter(20, .semibold))
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(pkg.title).font(.inter(17, .semibold))
+                if isHit { badge(L("pkg_hit"), Color.accentColor) }
+                if isBest { badge(L("pkg_best"), .green) }
+                Spacer(minLength: 8)
+                Text(product?.displayPrice ?? "").font(.inter(18, .semibold))
             }
-            Text(L("pkg_photos", pkg.totalPhotos)).font(.inter(14))
-            Text(L("pkg_scenes_line", pkg.maxScenes, pkg.scenesPool))
-                .font(.inter(12)).foregroundStyle(.secondary)
+            HStack(alignment: .lastTextBaseline) {
+                HStack(alignment: .lastTextBaseline, spacing: 6) {
+                    Text("\(pkg.totalPhotos)").font(.inter(34, .bold))
+                    Text(L("pkg_unit")).font(.inter(15, .medium))
+                }
+                Spacer(minLength: 8)
+                if let perPhoto {
+                    Text(perPhoto)
+                        .font(.inter(13))
+                        .foregroundStyle(isBest ? Color.green : Color.secondary)
+                }
+            }
             HStack {
+                Text(L("pkg_scenes_line", pkg.maxScenes, pkg.scenesPool))
+                    .font(.inter(13)).foregroundStyle(.secondary)
                 Spacer()
-                Text(L("pkg_choose")).font(.inter(16, .semibold)).foregroundStyle(Color.accentColor)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(.secondary)
             }
         }
         .padding(16)
@@ -67,5 +86,16 @@ private struct PackageRow: View {
             RoundedRectangle(cornerRadius: 14)
                 .strokeBorder(isHit ? Color.accentColor : .clear, lineWidth: 2)
         }
+        .contentShape(RoundedRectangle(cornerRadius: 14))
+    }
+
+    private func badge(_ text: String, _ color: Color) -> some View {
+        Text(text)
+            .font(.inter(11, .semibold))
+            .padding(.horizontal, 8).padding(.vertical, 3)
+            .background(color, in: Capsule())
+            .foregroundStyle(.white)
+            .lineLimit(1)
+            .fixedSize()
     }
 }
