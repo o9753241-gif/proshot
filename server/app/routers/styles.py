@@ -8,7 +8,7 @@ from app.services.i18n import pick_lang, tr_scene
 
 router = APIRouter()
 
-PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://89.221.203.218:8010").rstrip("/")
+PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "https://ios-proshot.myprojekts.online").rstrip("/")
 THUMBS_DIR = Path("./media/thumbs")
 
 

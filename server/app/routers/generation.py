@@ -35,7 +35,7 @@ router = APIRouter()
 MEDIA_DIR = Path("./media")
 MEDIA_DIR.mkdir(exist_ok=True)
 
-PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "http://89.221.203.218:8010").rstrip("/")
+PUBLIC_BASE_URL = os.environ.get("PUBLIC_BASE_URL", "https://ios-proshot.myprojekts.online").rstrip("/")
 
 # Потолок скорости. Человек выбирает сцены и разглядывает результат, так что
 # пятнадцати в час ему хватает с запасом. А выгрести пакет из 120 снимков

@@ -7,6 +7,9 @@ Type=simple
 User=root
 WorkingDirectory=/root/backend-ios
 Environment="PATH=/root/backend-ios/.venv/bin"
+# PUBLIC_BASE_URL читается через os.environ, а не через pydantic,
+# поэтому .env должен попасть в окружение процесса.
+EnvironmentFile=/root/backend-ios/.env
 ExecStart=/root/backend-ios/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8011 --workers 4
 Restart=always
 RestartSec=3
