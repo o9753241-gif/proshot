@@ -13,6 +13,7 @@ struct PackagesView: View {
 
     var body: some View {
         ScreenScaffold(title: L("packages_title"), subtitle: L("packages_subtitle")) {
+            ExamplesStrip(scenes: Array(state.orderedScenes.prefix(8)))
             ForEach(state.packages) { pkg in
                 Button {
                     state.selectedPackage = pkg
@@ -29,6 +30,34 @@ struct PackagesView: View {
 
     private func product(for pkg: PackageDTO) -> Product? {
         purchases.products.first { $0.id == pkg.sku }
+    }
+}
+
+/// Полоска примеров над тарифами: превью сцен в порядке подборки,
+/// листается вбок. Показывает, за что платят, прямо на экране оплаты.
+private struct ExamplesStrip: View {
+    let scenes: [StyleDTO]
+
+    var body: some View {
+        if !scenes.isEmpty {
+            VStack(alignment: .leading, spacing: 8) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(scenes) { scene in
+                            CachedImage(url: URL(string: scene.previewUrl)) {
+                                Rectangle().fill(Palette.fill)
+                            }
+                            .croppedTo(aspect: 3.0 / 4.0)
+                            .frame(width: 100)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .accessibilityLabel(scene.title)
+                        }
+                    }
+                }
+                Text(L("pkg_examples")).font(.inter(12)).foregroundStyle(.secondary)
+            }
+            .padding(.bottom, 4)
+        }
     }
 }
 

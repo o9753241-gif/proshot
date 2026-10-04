@@ -32,6 +32,7 @@
 "pkg_unit" = "fotos";
 "pkg_per_photo" = "≈ %@ por foto";
 "pkg_best" = "MEJOR PRECIO";
+"pkg_examples" = "Ejemplos de retratos de ProShot";
 "scenes_title" = "Elige tus escenas";
 "scenes_subtitle" = "Plan «%1$@» — hasta %2$d escenas. Seleccionadas %3$d. ≈ %4$d fotos por escena (%5$d en total)";
 "scenes_subtitle_empty" = "Plan «%1$@» — hasta %2$d escenas. Seleccionadas 0.";

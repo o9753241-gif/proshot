@@ -32,6 +32,7 @@
 "pkg_unit" = "фото";
 "pkg_per_photo" = "≈ %@ за фото";
 "pkg_best" = "ВЫГОДНЕЕ ВСЕГО";
+"pkg_examples" = "Примеры портретов из ProShot";
 "scenes_title" = "Выберите сцены";
 "scenes_subtitle" = "Пакет «%1$@» — до %2$d сцен. Выбрано %3$d. ≈ %4$d фото в каждой (всего %5$d)";
 "scenes_subtitle_empty" = "Пакет «%1$@» — до %2$d сцен. Выбрано 0.";
