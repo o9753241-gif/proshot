@@ -9,7 +9,10 @@ struct IndustryView: View {
     @Binding var path: [Route]
     @EnvironmentObject private var state: AppState
 
-    private let columns = [GridItem(.adaptive(minimum: 150), spacing: 12)]
+    // Две колонки с выравниванием по верху: при .adaptive и выравнивании по
+    // центру карточка с названием в две строки делала соседнюю ниже на полстроки.
+    private let columns = [GridItem(.flexible(), spacing: 12, alignment: .top),
+                           GridItem(.flexible(), spacing: 12, alignment: .top)]
 
     var body: some View {
         ScreenScaffold(title: L("industry_title"), subtitle: L("industry_subtitle")) {
@@ -71,10 +74,12 @@ private struct IndustryCard: View {
                 .frame(maxWidth: .infinity)
 
                 VStack(alignment: .leading, spacing: 3) {
+                    // Место под две строки резервируется всегда: карточки
+                    // в ряду одной высоты, даже если название в одну строку.
                     Text(title)
                         .font(.inter(15, .semibold))
                         .multilineTextAlignment(.leading)
-                        .lineLimit(2)
+                        .lineLimit(2, reservesSpace: true)
                     Text(note).font(.inter(11)).foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
