@@ -56,7 +56,8 @@ struct SummaryView: View {
     }
 
     private var priceText: String {
-        product?.displayPrice ?? state.selectedPackage?.priceDisplay ?? ""
+        // Только цена StoreKit, см. PackagesView. Без товара кнопка и так неактивна.
+        product?.displayPrice ?? ""
     }
 
     private func pay() async {

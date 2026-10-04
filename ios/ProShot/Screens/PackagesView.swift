@@ -1,9 +1,11 @@
 import SwiftUI
 import StoreKit
 
-/// Выбор тарифа. Цена берётся из StoreKit, а не с сервера: она в валюте
-/// витрины пользователя и всегда совпадает с тем, что спишет Apple.
-/// Серверная price_display остаётся запасным вариантом, пока товары не загрузились.
+/// Выбор тарифа. Цена берётся только из StoreKit: она в валюте витрины
+/// пользователя и всегда совпадает с тем, что спишет Apple. Серверную
+/// price_display не показываем даже как запасной вариант: она в рублях
+/// по языку, а не по стране, и человек из США видел бы «990 ₽».
+/// Пока товар не загрузился, цена просто пустая.
 struct PackagesView: View {
     @Binding var path: [Route]
     @EnvironmentObject private var state: AppState
@@ -26,7 +28,7 @@ struct PackagesView: View {
     }
 
     private func price(for pkg: PackageDTO) -> String {
-        purchases.products.first { $0.id == pkg.sku }?.displayPrice ?? pkg.priceDisplay
+        purchases.products.first { $0.id == pkg.sku }?.displayPrice ?? ""
     }
 }
 
