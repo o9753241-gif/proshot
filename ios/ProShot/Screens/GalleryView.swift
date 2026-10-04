@@ -6,7 +6,9 @@ struct GalleryView: View {
     @EnvironmentObject private var state: AppState
     @State private var toast: String?
 
-    private let columns = [GridItem(.adaptive(minimum: 108), spacing: 10)]
+    // Две колонки, как в Android (GalleryScreen: GridCells.Fixed(2)):
+    // при трёх готовый портрет слишком мелкий, чтобы его разглядеть.
+    private let columns = [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)]
 
     var body: some View {
         ScreenScaffold(title: L("gallery_title"),

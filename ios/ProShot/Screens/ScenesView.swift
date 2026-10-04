@@ -9,8 +9,9 @@ struct ScenesView: View {
     var body: some View {
         ScreenScaffold(title: L("scenes_title"), subtitle: subtitle) {
             if let pkg = state.selectedPackage {
-                SceneGrid(scenes: state.orderedScenes,
-                          selected: Set(state.selectedScenes)) { key in
+                SceneList(scenes: state.orderedScenes,
+                          selectedOrder: state.selectedScenes,
+                          canPickMore: state.selectedScenes.count < pkg.maxScenes) { key in
                     state.toggleScene(key)
                 }
                 .id(pkg.sku)

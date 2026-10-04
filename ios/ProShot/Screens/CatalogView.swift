@@ -58,13 +58,85 @@ private struct SceneSection: View {
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            SceneGrid(scenes: scenes)
+            SceneList(scenes: scenes)
         }
         .padding(.top, 8)
     }
 }
 
-/// Сетка превью сцен. Одинаковая на каталоге и на выборе сцен.
+/// Крупные карточки сцен по одной в ряд, как StyleCardLarge в Android:
+/// превью 4:3 на всю ширину, затемнение снизу, название белым поверх.
+/// Каталог и выбор сцен. Сетка из мелких превью (SceneGrid) осталась
+/// только там, где она и в Android: превью заказа и экран результата.
+struct SceneList: View {
+    let scenes: [StyleDTO]
+    /// Выбранные ключи по порядку выбора: номер на карточке = место в списке.
+    var selectedOrder: [String] = []
+    /// Можно ли выбрать ещё одну сцену. Невыбранные карточки при false гаснут.
+    var canPickMore: Bool = true
+    var onTap: ((String) -> Void)?
+
+    var body: some View {
+        LazyVStack(spacing: 12) {
+            ForEach(scenes) { scene in
+                let index = selectedOrder.firstIndex(of: scene.key)
+                SceneCardLarge(title: scene.title,
+                               previewUrl: scene.previewUrl,
+                               selectedNumber: index.map { $0 + 1 },
+                               dimmed: onTap != nil && index == nil && !canPickMore)
+                    .onTapGesture { onTap?(scene.key) }
+            }
+        }
+    }
+}
+
+struct SceneCardLarge: View {
+    let title: String
+    let previewUrl: String
+    var selectedNumber: Int?
+    var dimmed: Bool = false
+
+    var body: some View {
+        CachedImage(url: URL(string: previewUrl)) {
+            Rectangle().fill(Palette.fill)
+        }
+        .croppedTo(aspect: 4.0 / 3.0)
+        .overlay {
+            LinearGradient(colors: [.clear, .black.opacity(0.65)],
+                           startPoint: UnitPoint(x: 0.5, y: 0.45), endPoint: .bottom)
+        }
+        .overlay(alignment: .bottomLeading) {
+            Text(title)
+                .font(.inter(20, .semibold))
+                .foregroundStyle(.white)
+                .lineLimit(2)
+                .padding(.horizontal, 18).padding(.vertical, 14)
+        }
+        .overlay(alignment: .topTrailing) {
+            if let selectedNumber {
+                Text("\(selectedNumber)")
+                    .font(.inter(15, .bold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 12).padding(.vertical, 6)
+                    .background(Color.accentColor, in: RoundedRectangle(cornerRadius: 8))
+                    .padding(12)
+            }
+        }
+        .overlay {
+            if dimmed { Color.black.opacity(0.35) }
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 18))
+        .overlay {
+            RoundedRectangle(cornerRadius: 18)
+                .strokeBorder(selectedNumber != nil ? Color.accentColor : .clear, lineWidth: 3)
+        }
+        .contentShape(RoundedRectangle(cornerRadius: 18))
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(selectedNumber != nil ? [.isButton, .isSelected] : .isButton)
+    }
+}
+
+/// Сетка мелких превью сцен: превью заказа и экран результата (как в Android).
 struct SceneGrid: View {
     let scenes: [StyleDTO]
     var selected: Set<String> = []
