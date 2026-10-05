@@ -47,7 +47,6 @@ struct CaptureView: View {
                 Button(L("capture_from_library")) { showPicker = true }
                     .buttonStyle(.bordered)
             } else {
-                shutter
                 // Обычная кнопка, а не ссылка мелким текстом: её не находили.
                 Button(L("capture_from_library")) { showPicker = true }
                     .buttonStyle(.bordered)
@@ -63,10 +62,18 @@ struct CaptureView: View {
 
             bodyFields
         } bottom: {
-            PrimaryButton(title: L("capture_next"), enabled: state.capturedCount > 0) {
-                state.heightCm = Int(height)
-                state.weightKg = Int(weight)
-                path.append(.result)
+            // Затвор живёт в нижней панели, а не в прокручиваемой части:
+            // там он всегда на экране. Раньше на iPhone 11 он уезжал под
+            // панель, и снимать было непонятно чем.
+            VStack(spacing: 12) {
+                if !camera.unavailable && !camera.accessDenied {
+                    shutter
+                }
+                PrimaryButton(title: L("capture_next"), enabled: state.capturedCount > 0) {
+                    state.heightCm = Int(height)
+                    state.weightKg = Int(weight)
+                    path.append(.result)
+                }
             }
         }
         .onAppear { syncSlot(); camera.start() }
@@ -115,11 +122,15 @@ struct CaptureView: View {
             }
         }
         .aspectRatio(3.0 / 4.0, contentMode: .fit)
-        .frame(maxWidth: .infinity)
         .overlay {
             RoundedRectangle(cornerRadius: 18)
                 .strokeBorder(camera.quality.isGood ? Color.green : Color.clear, lineWidth: 3)
         }
+        // Видоискатель во всю ширину на iPhone 11 выходил 374×499 pt, и кнопка
+        // затвора уезжала под нижнюю панель: её приходилось искать прокруткой.
+        // Высота ограничена долей экрана, ширина подстраивается под 3:4.
+        .frame(maxHeight: UIScreen.main.bounds.height * 0.42)
+        .frame(maxWidth: .infinity)
     }
 
     private var shutter: some View {
