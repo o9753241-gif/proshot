@@ -82,11 +82,20 @@ private struct PackageRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline, spacing: 8) {
-                Text(pkg.title).font(.inter(17, .semibold))
+                Text(pkg.title)
+                    .font(.inter(17, .semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 if isHit { badge(L("pkg_hit"), Color.accentColor) }
                 if isBest { badge(L("pkg_best"), .green) }
                 Spacer(minLength: 8)
-                Text(product?.displayPrice ?? "").font(.inter(18, .semibold))
+                // Цена всегда в одну строку: «2 290,00 ₽» рядом с плашкой
+                // «Выгоднее всего» переносилась, и знак рубля уезжал вниз.
+                Text(product?.displayPrice ?? "")
+                    .font(.inter(18, .semibold))
+                    .lineLimit(1)
+                    .fixedSize()
+                    .layoutPriority(1)
             }
             HStack(alignment: .lastTextBaseline) {
                 HStack(alignment: .lastTextBaseline, spacing: 6) {
