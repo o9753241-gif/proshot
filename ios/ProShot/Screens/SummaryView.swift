@@ -35,6 +35,8 @@ struct SummaryView: View {
 
                 SceneGrid(scenes: state.selectedScenes.compactMap(state.scene(for:)))
 
+                NextSteps(photosPerScene: state.photosPerScene)
+
                 if serverPending {
                     Text(L("billing_server_pending"))
                         .font(.inter(13))
@@ -92,5 +94,42 @@ struct SummaryView: View {
             serverPending = true
             message = reason
         }
+    }
+}
+
+/// «Что будет после оплаты»: съёмка с проверкой кадра, варианты в каждой
+/// сцене, четыре формата. Человек видит, за что платит, а это ровно то, чем
+/// ProShot отличается от приложений «загрузи селфи — получи фото» (App Store 4.3).
+private struct NextSteps: View {
+    let photosPerScene: Int
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(L("summary_next_title")).font(.inter(18, .semibold))
+            step(1, "camera.viewfinder", L("summary_next_1"))
+            step(2, "photo.stack", L("summary_next_2", photosPerScene))
+            step(3, "rectangle.3.group", L("summary_next_3"))
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Palette.fill, in: RoundedRectangle(cornerRadius: 14))
+        .padding(.top, 4)
+    }
+
+    private func step(_ number: Int, _ symbol: String, _ text: String) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: symbol)
+                .font(.system(size: 17, weight: .semibold))
+                .foregroundStyle(Color.accentColor)
+                .frame(width: 32, height: 32)
+                .background(Color.accentColor.opacity(0.15), in: Circle())
+                .accessibilityHidden(true)
+            Text(text)
+                .font(.inter(14))
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.top, 6)
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(number). \(text)")
     }
 }

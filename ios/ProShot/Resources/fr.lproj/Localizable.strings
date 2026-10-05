@@ -44,6 +44,10 @@
 "summary_title" = "Votre commande";
 "summary_subtitle" = "Vérifiez votre sélection. Vous ne serez débité qu'en appuyant sur Payer.";
 "summary_recap" = "%1$@ · ~%2$d photos chacune · %3$@ au total";
+"summary_next_title" = "Après le paiement";
+"summary_next_1" = "Prenez trois photos : l'appareil vous guide pour la lumière et l'angle";
+"summary_next_2" = "Recevez ~%d photos par scène";
+"summary_next_3" = "Chaque portrait en 4 formats : avatar, CV, couverture, story";
 "summary_pay" = "Payer %@";
 "summary_paying" = "Traitement…";
 "summary_back_scenes" = "Retour aux scènes";

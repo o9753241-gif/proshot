@@ -44,6 +44,10 @@
 "summary_title" = "Your order";
 "summary_subtitle" = "Review your pick. You will be charged only when you tap Pay.";
 "summary_recap" = "%1$@ · ~%2$d photos each · %3$@ total";
+"summary_next_title" = "What happens after payment";
+"summary_next_1" = "Take three shots — the camera guides you on light and angle";
+"summary_next_2" = "Get ~%d photos in each scene";
+"summary_next_3" = "Every portrait comes in 4 formats: avatar, CV, cover, story";
 "summary_pay" = "Pay %@";
 "summary_paying" = "Processing…";
 "summary_back_scenes" = "Back to scenes";

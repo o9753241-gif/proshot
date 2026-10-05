@@ -44,6 +44,10 @@
 "summary_title" = "Ihre Bestellung";
 "summary_subtitle" = "Prüfen Sie Ihre Auswahl. Sie werden erst belastet, wenn Sie auf Bezahlen tippen.";
 "summary_recap" = "%1$@ · ~%2$d Fotos pro Szene · %3$@ gesamt";
+"summary_next_title" = "Was nach der Zahlung passiert";
+"summary_next_1" = "Drei Aufnahmen machen – die Kamera hilft bei Licht und Winkel";
+"summary_next_2" = "~%d Fotos pro Szene erhalten";
+"summary_next_3" = "Jedes Porträt in 4 Formaten: Avatar, Lebenslauf, Cover, Story";
 "summary_pay" = "%@ bezahlen";
 "summary_paying" = "Verarbeitung…";
 "summary_back_scenes" = "Zurück zu den Szenen";

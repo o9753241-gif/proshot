@@ -44,6 +44,10 @@
 "summary_title" = "Seu pedido";
 "summary_subtitle" = "Revise sua seleção. Você só será cobrado ao tocar em Pagar.";
 "summary_recap" = "%1$@ · ~%2$d fotos cada · %3$@ no total";
+"summary_next_title" = "O que acontece após o pagamento";
+"summary_next_1" = "Tire três fotos — a câmera orienta a luz e o ângulo";
+"summary_next_2" = "Receba ~%d fotos em cada cena";
+"summary_next_3" = "Cada retrato em 4 formatos: avatar, currículo, capa, story";
 "summary_pay" = "Pagar %@";
 "summary_paying" = "Processando…";
 "summary_back_scenes" = "Voltar às cenas";
