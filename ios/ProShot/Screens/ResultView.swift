@@ -1,14 +1,19 @@
 import SwiftUI
 
-/// Генерация по одной сцене за раз, как в Android-версии.
+/// Генерация по одной сцене за раз.
 ///
 /// Автоматической очереди нет намеренно: человек выбирает сцену, смотрит
-/// результат и решает, тратить ли следующий снимок. Бюджет пакета виден всегда.
+/// результат и решает, тратить ли следующий снимок. Выбор и запуск разделены
+/// (решение владельца): нажатие на сцену только выделяет её, фото списывается
+/// по отдельной кнопке, под которой видно, сколько останется. Раньше нажатие
+/// на сцену сразу запускало генерацию, и фото уходило случайным касанием.
 struct ResultView: View {
     @Binding var path: [Route]
     @EnvironmentObject private var state: AppState
 
     @State private var currentScene: String?
+    /// Сцена, выделенная для следующей генерации. Ничего не списывает.
+    @State private var pickedScene: String?
     @State private var latest: URL?
     @State private var generating = false
     @State private var error: String?
@@ -74,14 +79,26 @@ struct ResultView: View {
                 Text(toast).font(.inter(13)).foregroundStyle(.secondary)
             }
 
-            // Выбранные сцены: нажатие тратит один снимок из пакета.
+            // Выбранные при оплате сцены. Нажатие только выделяет сцену.
             Text(L("result_next_scene")).font(.inter(18, .semibold)).padding(.top, 8)
             SceneGrid(scenes: state.selectedScenes.compactMap(state.scene(for:)),
-                      selected: Set([currentScene].compactMap { $0 })) { key in
-                guard !generating, state.remainingBudget > 0 else { return }
-                Task { await generate(scene: key) }
+                      selected: Set([pickedScene].compactMap { $0 })) { key in
+                guard !generating else { return }
+                pickedScene = key
             }
         } bottom: {
+          VStack(spacing: 12) {
+            VStack(spacing: 8) {
+                PrimaryButton(title: generateTitle,
+                              enabled: pickedScene != nil && state.remainingBudget > 0,
+                              loading: generating) {
+                    guard let key = pickedScene else { return }
+                    Task { await generate(scene: key) }
+                }
+                Text(L("result_cost_line", state.remainingBudget))
+                    .font(.inter(12))
+                    .foregroundStyle(.secondary)
+            }
             HStack(spacing: 12) {
                 Button(L("result_all_photos", state.totalGenerated)) {
                     path.append(.gallery)
@@ -92,6 +109,7 @@ struct ResultView: View {
                 Button(L("result_home")) { showExit = true }
                     .buttonStyle(.bordered)
             }
+          }
         }
         .alert(L("result_exit_title"), isPresented: $showExit) {
             Button(L("result_exit_yes"), role: .destructive) {
@@ -102,6 +120,13 @@ struct ResultView: View {
         } message: {
             Text(L("result_exit_body", state.totalGenerated, state.remainingBudget))
         }
+    }
+
+    private var generateTitle: String {
+        guard let key = pickedScene, let scene = state.scene(for: key) else {
+            return L("result_generate_pick")
+        }
+        return L("result_generate_scene", scene.title)
     }
 
     private var title: String {

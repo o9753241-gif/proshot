@@ -81,7 +81,10 @@
 "result_title" = "Fertig";
 "result_all_done_title" = "Alle Fotos fertig";
 "result_pick_scene_title" = "Szene wählen";
-"result_pick_scene_hint" = "Wählen Sie unten eine Szene, um das erste Foto zu erstellen";
+"result_pick_scene_hint" = "Wählen Sie unten eine Szene und tippen Sie auf „Generieren“";
+"result_generate_scene" = "Generieren: %@";
+"result_generate_pick" = "Szene wählen";
+"result_cost_line" = "Verbraucht 1 Foto · noch %d";
 "result_next_scene" = "Nächste Szene:";
 "result_generating" = "Erstellen: %1$@";
 "result_generating_short" = "Erstellen…";

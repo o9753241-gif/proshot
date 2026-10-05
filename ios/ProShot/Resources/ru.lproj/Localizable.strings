@@ -81,7 +81,10 @@
 "result_title" = "Готово";
 "result_all_done_title" = "Все фото готовы";
 "result_pick_scene_title" = "Выберите сцену";
-"result_pick_scene_hint" = "Выберите сцену снизу — сгенерируем первое фото";
+"result_pick_scene_hint" = "Выберите сцену снизу и нажмите «Сгенерировать»";
+"result_generate_scene" = "Сгенерировать: %@";
+"result_generate_pick" = "Выберите сцену";
+"result_cost_line" = "Спишется 1 фото · осталось %d";
 "result_next_scene" = "Следующая сцена:";
 "result_generating" = "Генерируем: %1$@";
 "result_generating_short" = "Генерируем…";

@@ -81,7 +81,10 @@
 "result_title" = "Ready";
 "result_all_done_title" = "All photos ready";
 "result_pick_scene_title" = "Pick a scene";
-"result_pick_scene_hint" = "Pick a scene below to generate the first photo";
+"result_pick_scene_hint" = "Pick a scene below, then tap Generate";
+"result_generate_scene" = "Generate: %@";
+"result_generate_pick" = "Choose a scene";
+"result_cost_line" = "Uses 1 photo · %d left";
 "result_next_scene" = "Next scene:";
 "result_generating" = "Generating: %1$@";
 "result_generating_short" = "Generating…";

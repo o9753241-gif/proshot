@@ -81,7 +81,10 @@
 "result_title" = "Listo";
 "result_all_done_title" = "Todas las fotos listas";
 "result_pick_scene_title" = "Elige una escena";
-"result_pick_scene_hint" = "Elige una escena abajo para generar la primera foto";
+"result_pick_scene_hint" = "Elige una escena abajo y pulsa «Generar»";
+"result_generate_scene" = "Generar: %@";
+"result_generate_pick" = "Elige una escena";
+"result_cost_line" = "Usa 1 foto · quedan %d";
 "result_next_scene" = "Siguiente escena:";
 "result_generating" = "Generando: %1$@";
 "result_generating_short" = "Generando…";
