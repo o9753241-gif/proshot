@@ -3,7 +3,7 @@
   "nonRenewingSubscriptions" : [],
   "products" : [
     {
-      "displayPrice" : "9.99",
+      "displayPrice" : "7.99",
       "familyShareable" : false,
       "internalID" : "pack_basic",
       "localizations" : [
@@ -15,7 +15,7 @@
       "type" : "Consumable"
     },
     {
-      "displayPrice" : "19.99",
+      "displayPrice" : "14.99",
       "familyShareable" : false,
       "internalID" : "pack_standard",
       "localizations" : [
@@ -27,7 +27,7 @@
       "type" : "Consumable"
     },
     {
-      "displayPrice" : "29.99",
+      "displayPrice" : "24.99",
       "familyShareable" : false,
       "internalID" : "pack_premium",
       "localizations" : [
