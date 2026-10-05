@@ -100,7 +100,10 @@
 "result_saved_ok" = "Enregistré dans la galerie du téléphone";
 "result_saved_fail" = "Enregistrement impossible";
 "result_exit_title" = "Retourner à l'accueil ?";
-"result_exit_body" = "Vous avez %1$d photos prêtes — elles restent dans la galerie de l'app. Les %2$d photos restantes ne seront pas générées.";
+"result_exit_body" = "Vous avez %1$d photos prêtes — elles restent dans la galerie de l'app. Les %2$d photos restantes sont conservées : reprenez depuis l'écran d'accueil.";
+"home_resume_title" = "Formule « %@ » payée";
+"home_resume_left" = "Reste %d photos";
+"home_resume_action" = "Continuer";
 "result_exit_yes" = "Sortir";
 "result_exit_no" = "Rester";
 "result_error_generation" = "Erreur de génération, réessayez";

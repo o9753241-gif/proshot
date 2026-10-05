@@ -33,6 +33,11 @@ final class AppState: ObservableObject {
     // Результаты генерации: сцена → адреса готовых фото
     @Published var results: [String: [URL]] = [:]
 
+    /// Оплаченный пакет с непотраченными фото. Источник правды — сервер:
+    /// без этого после выхода на главный или перезапуска приложения оплаченный
+    /// остаток был недоступен, и экран предлагал купить тариф заново.
+    @Published var activePurchase: PurchaseDTO?
+
     /// Снимок, который сейчас раскладывают по форматам на экране кадрировок.
     @Published var cropSource: URL?
 
@@ -58,6 +63,7 @@ final class AppState: ObservableObject {
             self.packages = try await packages
             self.industries = try await industries
             self.styles = try await styles
+            await refreshPurchase()
         } catch {
             errorMessage = (error as? APIError)?.errorDescription ?? L("error_network")
         }
@@ -132,9 +138,46 @@ final class AppState: ObservableObject {
         results.values.reduce(0) { $0 + $1.count }
     }
 
-    /// Сколько фото из пакета ещё не израсходовано.
+    /// Сколько фото из пакета ещё не израсходовано. Берётся с сервера,
+    /// счёт по локальным результатам — только запасной вариант.
     var remainingBudget: Int {
-        max((selectedPackage?.totalPhotos ?? 0) - totalGenerated, 0)
+        if let activePurchase { return activePurchase.photosRemaining }
+        return max((selectedPackage?.totalPhotos ?? 0) - totalGenerated, 0)
+    }
+
+    /// Сколько фото из пакета уже израсходовано (в том числе до перезапуска).
+    var usedFromPackage: Int {
+        max((selectedPackage?.totalPhotos ?? 0) - remainingBudget, 0)
+    }
+
+    /// Пакет активной покупки — для подписи на главном экране.
+    var activePackage: PackageDTO? {
+        guard let sku = activePurchase?.sku else { return nil }
+        return packages.first { $0.sku == sku }
+    }
+
+    /// Последняя оплаченная покупка с остатком, как её выбирает сервер.
+    func refreshPurchase() async {
+        guard let list = try? await ProShotAPI.shared.purchases() else { return }
+        activePurchase = list.filter { $0.isActive }.max { $0.id < $1.id }
+    }
+
+    /// Остаток после генерации: сервер присылает его в ответе.
+    func updateRemaining(_ remaining: Int?) {
+        guard let remaining, let p = activePurchase else { return }
+        activePurchase = remaining > 0
+            ? PurchaseDTO(id: p.id, sku: p.sku, status: p.status,
+                          scenesSelected: p.scenesSelected, photosRemaining: remaining)
+            : nil
+    }
+
+    /// Возвращает выбор оплаченного пакета: тариф и сцены, указанные при оплате.
+    /// false — если пакета нет или его тарифа нет в списке с сервера.
+    func resumePurchase() -> Bool {
+        guard let p = activePurchase, let pkg = activePackage else { return false }
+        selectedPackage = pkg
+        selectedScenes = p.scenesSelected
+        return true
     }
 
     /// Примерно столько фото придётся на каждую выбранную сцену.

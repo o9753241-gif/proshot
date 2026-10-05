@@ -100,7 +100,10 @@
 "result_saved_ok" = "In Telefongalerie gespeichert";
 "result_saved_fail" = "Speichern nicht möglich";
 "result_exit_title" = "Zur Startseite verlassen?";
-"result_exit_body" = "Sie haben %1$d fertige Fotos — sie bleiben in der App-Galerie. Die verbleibenden %2$d Fotos werden nicht erstellt.";
+"result_exit_body" = "Sie haben %1$d fertige Fotos — sie bleiben in der App-Galerie. Die verbleibenden %2$d Fotos bleiben im Paket: fortsetzen über den Startbildschirm.";
+"home_resume_title" = "Paket „%@“ bezahlt";
+"home_resume_left" = "Noch %d Fotos";
+"home_resume_action" = "Fortsetzen";
 "result_exit_yes" = "Verlassen";
 "result_exit_no" = "Bleiben";
 "result_error_generation" = "Generierungsfehler, bitte erneut versuchen";

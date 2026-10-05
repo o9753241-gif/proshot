@@ -100,7 +100,10 @@
 "result_saved_ok" = "Guardado en galería del teléfono";
 "result_saved_fail" = "No se pudo guardar";
 "result_exit_title" = "¿Salir al inicio?";
-"result_exit_body" = "Tienes %1$d fotos listas — permanecerán en la galería de la app. Las %2$d fotos restantes no se generarán.";
+"result_exit_body" = "Tienes %1$d fotos listas — permanecerán en la galería de la app. Las %2$d fotos restantes se guardan en tu plan: continúa desde la pantalla de inicio.";
+"home_resume_title" = "Plan «%@» pagado";
+"home_resume_left" = "Quedan %d fotos";
+"home_resume_action" = "Continuar";
 "result_exit_yes" = "Salir";
 "result_exit_no" = "Quedarse";
 "result_error_generation" = "Error de generación, inténtalo de nuevo";

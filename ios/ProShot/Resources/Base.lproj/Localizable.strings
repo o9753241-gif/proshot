@@ -100,7 +100,10 @@
 "result_saved_ok" = "Saved to phone gallery";
 "result_saved_fail" = "Could not save";
 "result_exit_title" = "Exit to home?";
-"result_exit_body" = "You have %1$d ready photos — they will stay in the app gallery. The remaining %2$d photos will not be generated.";
+"result_exit_body" = "You have %1$d ready photos — they will stay in the app gallery. The remaining %2$d photos stay in your plan: continue from the home screen.";
+"home_resume_title" = "“%@” plan is paid";
+"home_resume_left" = "%d photos left";
+"home_resume_action" = "Continue";
 "result_exit_yes" = "Exit";
 "result_exit_no" = "Stay";
 "result_error_generation" = "Generation error, please try again";

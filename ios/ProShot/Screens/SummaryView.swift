@@ -79,8 +79,9 @@ struct SummaryView: View {
         SceneSelectionStore.save(state.selectedScenes, for: pkg.sku)
 
         switch await purchases.purchase(product, scenes: state.selectedScenes) {
-        case .success:
+        case .success(let purchase):
             paying = false
+            state.activePurchase = purchase
             path.append(.capture)
         case .cancelled:
             paying = false

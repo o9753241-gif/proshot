@@ -16,6 +16,15 @@ struct IndustryView: View {
 
     var body: some View {
         ScreenScaffold(title: L("industry_title"), subtitle: L("industry_subtitle")) {
+            if let purchase = state.activePurchase, let pkg = state.activePackage {
+                ResumeCard(title: L("home_resume_title", pkg.title),
+                           note: L("home_resume_left", purchase.photosRemaining)) {
+                    guard state.resumePurchase() else { return }
+                    // Кадры живут в памяти: после перезапуска их снимают заново
+                    // (съёмка фото из пакета не тратит).
+                    path = state.capturedCount > 0 ? [.result] : [.capture]
+                }
+            }
             if state.isLoading && state.industries.isEmpty {
                 ProgressView().frame(maxWidth: .infinity).padding(.vertical, 40)
             } else if let error = state.errorMessage, state.industries.isEmpty {
@@ -89,5 +98,30 @@ private struct IndustryCard: View {
             .clipShape(RoundedRectangle(cornerRadius: 14))
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// Оплаченный пакет с остатком: сколько фото осталось и кнопка «Продолжить».
+private struct ResumeCard: View {
+    let title: String
+    let note: String
+    let action: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title).font(.inter(15, .semibold))
+                Text(note).font(.inter(13)).foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            Button(L("home_resume_action"), action: action)
+                .font(.inter(15, .semibold))
+                .buttonStyle(.borderedProminent)
+        }
+        .padding(14)
+        .background(Palette.fill, in: RoundedRectangle(cornerRadius: 14))
+        .overlay {
+            RoundedRectangle(cornerRadius: 14).strokeBorder(Color.accentColor, lineWidth: 2)
+        }
     }
 }

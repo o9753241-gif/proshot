@@ -130,13 +130,13 @@ struct ResultView: View {
     }
 
     private var title: String {
-        state.remainingBudget == 0 && state.totalGenerated > 0
+        state.remainingBudget == 0 && state.usedFromPackage > 0
             ? L("result_all_done_title")
             : L("result_pick_scene_title")
     }
 
     private var subtitle: String {
-        L("result_subtitle_progress", state.totalGenerated,
+        L("result_subtitle_progress", state.usedFromPackage,
           state.selectedPackage?.totalPhotos ?? 0)
     }
 
@@ -162,6 +162,7 @@ struct ResultView: View {
                 state.results[key, default: []].append(url)
                 latest = url
             }
+            state.updateRemaining(response.photosRemaining)
         } catch let apiError as APIError {
             // 402 и 429 сервер отдаёт кодами, а не текстом: показываем причину,
             // а не общую «ошибка генерации».
