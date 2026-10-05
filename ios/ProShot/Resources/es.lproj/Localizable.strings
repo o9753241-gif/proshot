@@ -91,6 +91,7 @@
 "result_subtitle_current" = "%1$@ · %2$d / %3$d";
 "result_subtitle_progress" = "Generadas %1$d de %2$d";
 "result_change_photo" = "Cambiar foto";
+"result_photo_used" = "Foto para generar";
 "result_all_photos" = "Todas las fotos (%d)";
 "result_back" = "Atrás";
 "result_home" = "Inicio";

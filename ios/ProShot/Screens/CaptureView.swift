@@ -48,9 +48,10 @@ struct CaptureView: View {
                     .buttonStyle(.bordered)
             } else {
                 shutter
+                // Обычная кнопка, а не ссылка мелким текстом: её не находили.
                 Button(L("capture_from_library")) { showPicker = true }
-                    .buttonStyle(.borderless)
-                    .font(.inter(13))
+                    .buttonStyle(.bordered)
+                    .frame(maxWidth: .infinity)
             }
 
             if let note {

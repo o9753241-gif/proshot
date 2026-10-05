@@ -91,6 +91,7 @@
 "result_subtitle_current" = "%1$@ · %2$d / %3$d";
 "result_subtitle_progress" = "%1$d von %2$d erstellt";
 "result_change_photo" = "Foto ändern";
+"result_photo_used" = "Foto für die Erstellung";
 "result_all_photos" = "Alle Fotos (%d)";
 "result_back" = "Zurück";
 "result_home" = "Startseite";

@@ -91,6 +91,7 @@
 "result_subtitle_current" = "%1$@ · %2$d / %3$d";
 "result_subtitle_progress" = "Сгенерировано %1$d из %2$d";
 "result_change_photo" = "Заменить фото";
+"result_photo_used" = "Фото для генерации";
 "result_all_photos" = "Все фото (%d)";
 "result_back" = "Назад";
 "result_home" = "На главный";

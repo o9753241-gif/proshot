@@ -79,6 +79,27 @@ struct ResultView: View {
                 Text(toast).font(.inter(13)).foregroundStyle(.secondary)
             }
 
+            // Какое фото уходит в генерацию, и как его заменить. Без этого
+            // все генерации шли с одним снимком, а вернуться к съёмке было
+            // неочевидно.
+            HStack(spacing: 12) {
+                if let data = state.photoData, let image = UIImage(data: data) {
+                    Image(uiImage: image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 44, height: 58)
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                }
+                Text(L("result_photo_used"))
+                    .font(.inter(13))
+                    .foregroundStyle(.secondary)
+                Spacer(minLength: 8)
+                Button(L("result_change_photo")) { retake() }
+                    .buttonStyle(.bordered)
+                    .disabled(generating)
+            }
+            .padding(.top, 8)
+
             // Выбранные при оплате сцены. Нажатие только выделяет сцену.
             Text(L("result_next_scene")).font(.inter(18, .semibold)).padding(.top, 8)
             SceneGrid(scenes: state.selectedScenes.compactMap(state.scene(for:)),
@@ -119,6 +140,16 @@ struct ResultView: View {
             Button(L("result_exit_no"), role: .cancel) {}
         } message: {
             Text(L("result_exit_body", state.totalGenerated, state.remainingBudget))
+        }
+    }
+
+    /// Назад к съёмке с чистыми кадрами. Фото из пакета это не тратит.
+    private func retake() {
+        state.shots = Array(repeating: nil, count: AppState.shotCount)
+        if path.count >= 2, path[path.count - 2] == .capture {
+            path.removeLast()
+        } else {
+            path.append(.capture)
         }
     }
 
