@@ -27,16 +27,26 @@ actor ProShotAPI {
     static let shared = ProShotAPI()
 
     private let session: URLSession
+    /// Отдельная сессия для генерации. Предел тишины в URLSession берётся из
+    /// настроек сессии, а timeoutInterval самого запроса его надёжно не
+    /// перекрывает — поэтому долгому запросу своя сессия с долгим пределом.
+    private let longSession: URLSession
     private let decoder: JSONDecoder
     private let encoder: JSONEncoder
 
     init(session: URLSession? = nil) {
         let config = URLSessionConfiguration.default
+        // Ожидание ответа для обычных запросов. Генерация задаёт своё (ниже):
+        // этот предел — время тишины между байтами ответа, а сервер молчит,
+        // пока генератор рисует портрет (20–60 с, бывает дольше).
         config.timeoutIntervalForRequest = 15
-        // Генерация идёт долго, поэтому ресурсу дано столько же, сколько
-        // readTimeout в Android-клиенте.
-        config.timeoutIntervalForResource = 120
+        config.timeoutIntervalForResource = 180
         self.session = session ?? URLSession(configuration: config)
+
+        let long = URLSessionConfiguration.default
+        long.timeoutIntervalForRequest = 150
+        long.timeoutIntervalForResource = 180
+        self.longSession = session ?? URLSession(configuration: long)
 
         decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
@@ -90,6 +100,11 @@ actor ProShotAPI {
                   heightCm: Int?,
                   weightKg: Int?) async throws -> GenerateResponse {
         var request = base(path: "/api/v1/generation/generate", method: "POST")
+        // Было 15 с от общих настроек сессии: запрос обрывался раньше, чем
+        // генератор успевал ответить, человек видел «Нет связи с сервером»,
+        // а сервер тем временем списывал фото и рисовал портрет впустую.
+        // 150 с — с запасом над readTimeout Android-клиента (120 с).
+        request.timeoutInterval = 150
         let boundary = "proshot.\(UUID().uuidString)"
         request.setValue("multipart/form-data; boundary=\(boundary)",
                          forHTTPHeaderField: "Content-Type")
@@ -111,7 +126,7 @@ actor ProShotAPI {
         body.append("\r\n--\(boundary)--\r\n")
         request.httpBody = body
 
-        return try await perform(request)
+        return try await perform(request, using: longSession)
     }
 
     // MARK: - Токен устройства (App Attest)
@@ -193,11 +208,12 @@ actor ProShotAPI {
         return try await perform(request)
     }
 
-    private func perform<T: Decodable>(_ request: URLRequest) async throws -> T {
+    private func perform<T: Decodable>(_ request: URLRequest,
+                                       using custom: URLSession? = nil) async throws -> T {
         let data: Data
         let response: URLResponse
         do {
-            (data, response) = try await session.data(for: request)
+            (data, response) = try await (custom ?? session).data(for: request)
         } catch {
             throw APIError.network(error)
         }
