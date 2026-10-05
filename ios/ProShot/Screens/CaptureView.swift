@@ -46,11 +46,6 @@ struct CaptureView: View {
                     .fixedSize(horizontal: false, vertical: true)
                 Button(L("capture_from_library")) { showPicker = true }
                     .buttonStyle(.bordered)
-            } else {
-                // Обычная кнопка, а не ссылка мелким текстом: её не находили.
-                Button(L("capture_from_library")) { showPicker = true }
-                    .buttonStyle(.bordered)
-                    .frame(maxWidth: .infinity)
             }
 
             if let note {
@@ -133,8 +128,19 @@ struct CaptureView: View {
         .frame(maxWidth: .infinity)
     }
 
+    /// Ряд как в системной камере: слева галерея, по центру затвор.
+    /// Оба всегда на экране — в нижней панели, а не под видоискателем,
+    /// где кнопку галереи было не найти без прокрутки.
     private var shutter: some View {
         HStack {
+            Button { showPicker = true } label: {
+                Image(systemName: "photo.on.rectangle")
+                    .font(.system(size: 22, weight: .medium))
+                    .frame(width: 52, height: 52)
+                    .background(Palette.fill, in: Circle())
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(L("capture_from_library"))
             Spacer()
             Button {
                 Task { await shoot() }
@@ -156,7 +162,10 @@ struct CaptureView: View {
             .buttonStyle(.plain)
             .disabled(busy || !camera.quality.isGood)
             Spacer()
+            // Пустое место того же размера, чтобы затвор стоял ровно по центру.
+            Color.clear.frame(width: 52, height: 52)
         }
+        .padding(.horizontal, 8)
     }
 
     // MARK: - Полоска снятых кадров
