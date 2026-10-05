@@ -142,7 +142,11 @@ struct SceneGrid: View {
     var selected: Set<String> = []
     var onTap: ((String) -> Void)?
 
-    private let columns = [GridItem(.adaptive(minimum: 104), spacing: 10)]
+    // Три колонки, как в Android (SummaryScreen: GridCells.Fixed(3)), по верху:
+    // при выравнивании по центру карточка с подписью в одну строку съезжала
+    // ниже соседних с подписью в две.
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 10, alignment: .top),
+                                count: 3)
 
     var body: some View {
         LazyVGrid(columns: columns, spacing: 10) {
@@ -168,7 +172,7 @@ struct SceneGrid: View {
                     }
                     Text(scene.title)
                         .font(.inter(11))
-                        .lineLimit(2)
+                        .lineLimit(2, reservesSpace: true)
                         .multilineTextAlignment(.center)
                         .frame(maxWidth: .infinity)
                 }

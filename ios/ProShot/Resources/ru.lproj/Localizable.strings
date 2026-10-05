@@ -33,6 +33,8 @@
 "pkg_per_photo" = "≈ %@ за фото";
 "pkg_best" = "ВЫГОДНЕЕ ВСЕГО";
 "pkg_examples" = "Примеры портретов из ProShot";
+"n_scenes" = "%d сцены";
+"n_shots" = "%d хедшота";
 "scenes_title" = "Выберите сцены";
 "scenes_subtitle" = "Пакет «%1$@» — до %2$d сцен. Выбрано %3$d. ≈ %4$d фото в каждой (всего %5$d)";
 "scenes_subtitle_empty" = "Пакет «%1$@» — до %2$d сцен. Выбрано 0.";
@@ -41,7 +43,7 @@
 "scenes_no_pkg" = "Сначала выберите тариф";
 "summary_title" = "Ваш заказ";
 "summary_subtitle" = "Проверьте выбор. Оплата произойдёт по кнопке ниже.";
-"summary_recap" = "%1$d сцен · ~%2$d фото в каждой · итого %3$d хедшотов";
+"summary_recap" = "%1$@ · ~%2$d фото в каждой · итого %3$@";
 "summary_pay" = "Оплатить %@";
 "summary_paying" = "Обработка…";
 "summary_back_scenes" = "К сценам";

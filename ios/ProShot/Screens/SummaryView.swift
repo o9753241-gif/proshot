@@ -15,11 +15,17 @@ struct SummaryView: View {
         ScreenScaffold(title: L("summary_title"), subtitle: L("summary_subtitle")) {
             if let pkg = state.selectedPackage {
                 VStack(alignment: .leading, spacing: 12) {
-                    Text(pkg.title).font(.inter(20, .semibold))
+                    // Цена рядом с названием, как в Android (SummaryScreen).
+                    HStack(alignment: .firstTextBaseline) {
+                        Text(pkg.title).font(.inter(20, .semibold))
+                        Spacer(minLength: 8)
+                        Text(priceText).font(.inter(24, .bold))
+                    }
+                    // Числа со словами через stringsdict: «3 сцены», а не «3 сцен».
                     Text(L("summary_recap",
-                           state.selectedScenes.count,
+                           L("n_scenes", state.selectedScenes.count),
                            state.photosPerScene,
-                           pkg.totalPhotos))
+                           L("n_shots", pkg.totalPhotos)))
                         .font(.inter(14))
                         .foregroundStyle(.secondary)
                 }

@@ -7,5 +7,7 @@ func L(_ key: String) -> String {
 }
 
 func L(_ key: String, _ args: CVarArg...) -> String {
-    String(format: NSLocalizedString(key, comment: ""), arguments: args)
+    // locale: — чтобы формы множественного числа из Localizable.stringsdict
+    // («3 сцены», «1 scene») выбирались по правилам языка пользователя.
+    String(format: NSLocalizedString(key, comment: ""), locale: Locale.current, arguments: args)
 }

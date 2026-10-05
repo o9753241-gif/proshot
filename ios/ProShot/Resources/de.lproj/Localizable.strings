@@ -33,6 +33,8 @@
 "pkg_per_photo" = "≈ %@ pro Foto";
 "pkg_best" = "BESTER PREIS";
 "pkg_examples" = "Beispiele für ProShot-Porträts";
+"n_scenes" = "%d Szenen";
+"n_shots" = "%d Headshots";
 "scenes_title" = "Szenen auswählen";
 "scenes_subtitle" = "Tarif «%1$@» — bis zu %2$d Szenen. Ausgewählt %3$d. ≈ %4$d Fotos pro Szene (%5$d gesamt)";
 "scenes_subtitle_empty" = "Tarif «%1$@» — bis zu %2$d Szenen. Ausgewählt 0.";
@@ -41,7 +43,7 @@
 "scenes_no_pkg" = "Wählen Sie zuerst einen Tarif";
 "summary_title" = "Ihre Bestellung";
 "summary_subtitle" = "Prüfen Sie Ihre Auswahl. Sie werden erst belastet, wenn Sie auf Bezahlen tippen.";
-"summary_recap" = "%1$d Szenen · ~%2$d Fotos pro Szene · %3$d Headshots gesamt";
+"summary_recap" = "%1$@ · ~%2$d Fotos pro Szene · %3$@ gesamt";
 "summary_pay" = "%@ bezahlen";
 "summary_paying" = "Verarbeitung…";
 "summary_back_scenes" = "Zurück zu den Szenen";

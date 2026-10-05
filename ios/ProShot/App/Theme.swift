@@ -40,6 +40,21 @@ extension ScreenScaffold where Bottom == EmptyView {
     }
 }
 
+/// Свой стиль вместо .borderedProminent: у того неактивная кнопка в тёмной
+/// теме почти чёрная с тёмно-серым текстом и сливается с фоном. Здесь
+/// неактивная — тот же синий, приглушённый, с читаемым белым текстом.
+private struct PrimaryButtonStyle: ButtonStyle {
+    @Environment(\.isEnabled) private var isEnabled
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .foregroundStyle(.white.opacity(isEnabled ? 1 : 0.7))
+            .background(Color.accentColor.opacity(isEnabled ? (configuration.isPressed ? 0.8 : 1) : 0.35),
+                        in: Capsule())
+            .contentShape(Capsule())
+    }
+}
+
 /// Кнопка основного действия — одна на экран, внизу.
 struct PrimaryButton: View {
     let title: String
@@ -55,7 +70,7 @@ struct PrimaryButton: View {
             }
             .frame(maxWidth: .infinity, minHeight: 50)
         }
-        .buttonStyle(.borderedProminent)
+        .buttonStyle(PrimaryButtonStyle())
         .disabled(!enabled || loading)
     }
 }

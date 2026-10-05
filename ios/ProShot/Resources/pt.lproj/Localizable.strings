@@ -33,6 +33,8 @@
 "pkg_per_photo" = "≈ %@ por foto";
 "pkg_best" = "MELHOR PREÇO";
 "pkg_examples" = "Exemplos de retratos do ProShot";
+"n_scenes" = "%d cenas";
+"n_shots" = "%d retratos";
 "scenes_title" = "Escolha suas cenas";
 "scenes_subtitle" = "Plano «%1$@» — até %2$d cenas. Selecionadas %3$d. ≈ %4$d fotos por cena (%5$d no total)";
 "scenes_subtitle_empty" = "Plano «%1$@» — até %2$d cenas. Selecionadas 0.";
@@ -41,7 +43,7 @@
 "scenes_no_pkg" = "Escolha um plano primeiro";
 "summary_title" = "Seu pedido";
 "summary_subtitle" = "Revise sua seleção. Você só será cobrado ao tocar em Pagar.";
-"summary_recap" = "%1$d cenas · ~%2$d fotos cada · %3$d retratos no total";
+"summary_recap" = "%1$@ · ~%2$d fotos cada · %3$@ no total";
 "summary_pay" = "Pagar %@";
 "summary_paying" = "Processando…";
 "summary_back_scenes" = "Voltar às cenas";
