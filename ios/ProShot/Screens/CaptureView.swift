@@ -124,7 +124,7 @@ struct CaptureView: View {
         // Видоискатель во всю ширину на iPhone 11 выходил 374×499 pt, и кнопка
         // затвора уезжала под нижнюю панель: её приходилось искать прокруткой.
         // Высота ограничена долей экрана, ширина подстраивается под 3:4.
-        .frame(maxHeight: UIScreen.main.bounds.height * 0.42)
+        .frame(maxHeight: UIScreen.main.bounds.height * 0.38)
         .frame(maxWidth: .infinity)
     }
 
